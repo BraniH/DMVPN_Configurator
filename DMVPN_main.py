@@ -89,6 +89,8 @@ if __name__ == "__main__":
     ''' Clear DMVPN config - only parts which are required will remain '''
     CleanConfig(os.getcwd() + standard_config.replace("docx", "txt"), setup_config)
   
+  
+    ''' Parsing values into the config '''
     
     
 
