@@ -9,10 +9,6 @@ def get_txt_content(path, encoding='utf-8'):
     return content
 
 
-# def get_filter_strings(filter_string, config):
-#     return filter_string(filter_string)
-
-
 class CleanConfig:
     
     def __init__(self, path_to_config, setupconfig):
