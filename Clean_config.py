@@ -1,3 +1,4 @@
+from Filter_strings import FilterStrings
 
 
 def get_txt_content(path, encoding='utf-8'):
@@ -8,15 +9,22 @@ def get_txt_content(path, encoding='utf-8'):
     return content
 
 
+# def get_filter_strings(filter_string, config):
+#     return filter_string(filter_string)
+
+
 class CleanConfig:
     
     def __init__(self, path_to_config, setupconfig):
         self.path_to_config = path_to_config
         self.setupconfig = setupconfig
+        self.initial_cleanup()
         
 
-    def initial_cleanup(self, flag, encoding='utf-8'):
-
+    def initial_cleanup(self, encoding='utf-8'):
+        
+        region = FilterStrings("Region").filter_string
+        flag = region.replace("<Region>", self.setupconfig["Location info"][0]["Region"])
         flag_lines = flag.strip().split('\n')
         content = get_txt_content(self.path_to_config)
         
@@ -33,11 +41,7 @@ class CleanConfig:
     
 if __name__ == "__main__":
     path = r"C:\Users\brani\OneDrive\Počítač\DMVPN config\DMVPN_Configurator\Config\DMVPN - Copy.txt"
-    flag = '''Branch APAC
 
-Staging Process
-
-Preparation'''
 
     setup_config = {'Location info': [{'Region': 'APAC'}, 
                                       {'City': 'Washington'}], 'WAN info': [{'Hostname': 'USAnr4003ALEX101'}, 
@@ -49,5 +53,6 @@ Preparation'''
                                       'LAN info': [{'LAN_interface': 'Vlan1'}, {'LAN_IP+mask': '10.2.2.1/25'}]}
 
     
-    CleanConfig(path, setup_config).initial_cleanup(flag)
-    print("done")
+    
+    # print(setup_config["Location info"][0]["Region"])
+    # CleanConfig(path, setup_config)
