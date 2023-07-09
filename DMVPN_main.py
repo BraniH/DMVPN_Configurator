@@ -84,9 +84,6 @@ if __name__ == "__main__":
     ''' Parse the setup.xlsx to a dictionary '''
     setup = "setup.xlsx"
     setup_config = parse_excel(setup, "Main Info")
-    print("this is setup config: ")
-    print(setup_config)
-
     
     ''' Clear DMVPN config - only parts which are required will remain '''
     CleanConfig(os.getcwd() + standard_config.replace("docx", "txt"), setup_config)
