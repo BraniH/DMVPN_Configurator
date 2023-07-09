@@ -6,6 +6,7 @@ class FilterStrings:
     def __init__(self, filter_string):
         self.filetr_string = filter_string
         
+        ''' decides which string will be returned'''
         if filter_string == "Region":
             self.get_initial_string(filter_string)
     
