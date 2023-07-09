@@ -4,18 +4,24 @@ The class made as storage for string filtering.
 
 class FilterStrings:
     def __init__(self, filter_string):
-        self.filetr_string = filter_string
         
         ''' decides which string will be returned'''
         if filter_string == "Region":
-            self.get_initial_string(filter_string)
+            self.filter_string = self.get_initial_string()
     
     
-    def get_initial_string(self, key):
-        flag = '''Branch <Country>
+    @staticmethod
+    def get_initial_string():
+        flag = '''Branch <Region>
 
                     Staging Process
 
                     Preparation'''
 
         return flag
+    
+    
+    
+if __name__ == "__main__":
+    region = FilterStrings("Region")
+    print(region.filter_string)
