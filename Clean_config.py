@@ -110,16 +110,12 @@ if __name__ == "__main__":
     path = r"C:\Users\brani\OneDrive\Počítač\DMVPN config\DMVPN_Configurator\Config\DMVPN - Copy.txt"
 
 
-    setup_config = {'Location info': [{'Region': 'EMEA'}, 
-                                      {'City': 'Washington'}], 
-                    'WAN info': [{'Hostname': 'USAnr4003ALEX101'}, 
-                                      {'Loopback': '10.173.130.16'}, {'Design': 'BASE'}, {'Migration from MPLS': 'True - Production router'}, 
-                                      {'ZBFW': False}], 
-                    'Main Link': [{'Main_IP+mask': '192.1.1.2/24'}, {'GW': '192.1.1.1'}, {'Main_port_speed': 100}, 
-                                     {'Tunnel_25/27_IP': '172.25.1.1'}, {'Main_DC_Tunnel_Speed': 20}, {'4G+Cellular': True}, {'APN': "apn.josko.sk"}], 
-                    'Backup Link': [{'Main_IP+mask': 'DHCP'}, {'GW': ""},{'Main_port_speed': 40}, {'Tunnel_26/28_IP': '172.26.1.1'}, {'Main_DC_Tunnel_Speed': 20}, {'4G+Cellular': False}], 
-                    'Zscaler': [{'Tunnel_type': 'IPsec'}, {'Main_Zscaler_limitation': 50}, {'Backup_Zscaler_limitation': 40}], 
-                    'LAN info': [{'LAN_interface': 'Vlan1'}, {'LAN_IP+mask': '10.2.2.1/25'}]}
+    setup_config = {'Location info': {'Region': 'APAC', 'City': 'Washington'}, 
+                    'WAN info': {'Hostname': 'USAnr4003ALEX101', 'Loopback': '10.173.130.16', 'Design': 'BASE', 'Migration from MPLS': 'True - Production router', 'ZBFW': False}, 
+                    'Main Link': {'Main_IP+mask': '192.1.1.2/24', 'Main_GW': '192.1.1.1', 'Main_port_speed': 100, 'Tunnel_25/27_IP': '172.25.1.1', 'Main_DC_Tunnel_Speed': 20, '4G+Cellular': False, 'APN': 'internet.odjosky.com'}, 
+                    'Backup Link': {'Backup_IP+mask': 'DHCP', 'Backup_port_speed': 40, 'Tunnel_26/28_IP': '172.26.1.1', 'backup_DC_Tunnel_Speed': 20, '4G+Cellular': True, 'APN': 'internet.odjosky.com'}, 
+                    'Zscaler': {'Tunnel_type': 'IPsec', 'Main_Zscaler_limitation': 50, 'Backup_Zscaler_limitation': 40}, 
+                    'LAN info': {'LAN_interface': 'Vlan1', 'LAN_IP+mask': '10.2.2.1/25'}}
 
     
     
