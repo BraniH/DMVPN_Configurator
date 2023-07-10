@@ -7,11 +7,11 @@ class FilterStrings:
         
         ''' decides which string will be returned'''
         if filter_string == "Region":
-            self.filter_string = self.get_initial_string()
+            self.filter_string = self.get_region_string()
     
     
     @staticmethod
-    def get_initial_string():
+    def get_region_string():
         flag = '''Branch <Region>
 
                     Staging Process
