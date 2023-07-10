@@ -9,6 +9,11 @@ def get_txt_content(path, encoding='utf-8'):
     return content
 
 
+def write_file(path, content, encoding='utf-8'):
+    with open(path, 'w', encoding=encoding) as file:
+                file.writelines(content)
+
+
 class CleanConfig:
     
     def __init__(self, path_to_config, setup_config):
@@ -20,7 +25,8 @@ class CleanConfig:
         if setup_config["Main Link"][5]["4G+Cellular"] == False: 
             self.file_ending_cleanup(target_string=FilterStrings("Ending").filter_string)
         else:
-            self.file_mid_content_cleanup(start_string=None, end_string=None)
+            pass
+            #self.file_mid_content_cleanup(start_string=None, end_string=None)
         
 
     '''The beginning of the file will be cleaned up from unnecessary content'''
@@ -55,17 +61,38 @@ class CleanConfig:
 
         if index != -1:
             content = content[:index]
-
-            with open(self.path_to_config, 'w', encoding='utf-8') as file:
-                file.writelines(content)
+            write_file(self.path_to_config, content)
+                       
         else:
             print("[!] Filter setting stopped working in file_ending_cleanup function. The filter needs to be changed!")
 			
 
                 
     
-    def file_mid_content_cleanup(start_string, end_string):
-        pass
+    def file_mid_content_cleanup(self, start_string, end_string):
+        content = get_txt_content(self.path_to_config)
+        start_lines = start_string.strip().split('\n')
+        end_lines = end_string.strip().split('\n')
+        start_index = None
+        end_index = None
+
+        for i in range(len(content) - len(start_lines) + 1):
+            if content[i:i + len(start_lines)] == [line.strip() for line in start_lines]:
+                start_index = i
+                break
+
+        if start_index is not None:
+            for i in range(start_index + len(start_lines), len(content) - len(end_lines) + 1):
+                if content[i:i + len(end_lines)] == [line.strip() for line in end_lines]:
+                    end_index = i + len(end_lines)
+                    break
+
+        if start_index is not None and end_index is not None:
+            content = content[:start_index] + content[end_index:]
+            write_file(self.path_to_config, content)
+            
+        else:
+            print("Start or end string not found in the file.")
     
 
         

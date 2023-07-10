@@ -24,8 +24,16 @@ class FilterStrings:
     
     @staticmethod
     def get_file_ending_cleanup_string():
-        flag = '''created for wireless networks (e.g. SVI VLAN30 used by HCAccess)
-    into INSIDE security zone as a member!'''
+        flag = '''Wireless Access-point is implemented on DMVPN NG
+                router where ZBF is configured it is then necessary to add SVIs
+                created for wireless networks (e.g. SVI VLAN30 used by HCAccess)
+                into INSIDE security zone as a member!'''
+        
+        return flag
+    
+    @staticmethod
+    def Cellular_string():
+        flag = '''Apendix'''
         
         return flag
     
