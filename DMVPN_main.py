@@ -60,6 +60,7 @@ def parse_excel(filename, sheet_name):
 
     # Get merged cells and unmerged cells dictionary
     merged_unmerged_dict = get_cells(sheet)
+    print(merged_unmerged_dict)
 
     return merged_unmerged_dict
 
@@ -84,6 +85,7 @@ if __name__ == "__main__":
     ''' Parse the setup.xlsx to a dictionary '''
     setup = "setup.xlsx"
     setup_config = parse_excel(setup, "Main Info")
+    
     
     ''' Clear DMVPN config - only parts which are required will remain '''
     CleanConfig(os.getcwd() + standard_config.replace("docx", "txt"), setup_config)
