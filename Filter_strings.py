@@ -12,6 +12,8 @@ class FilterStrings:
             self.filter_string = self.get_file_ending_cleanup_string()
         elif filter_string == "Cellular":
             self.filter_string = self.cellular_string()
+        elif filter_string == "Manual enroll":
+            self.filter_string = self.manual_enroll_string()
     
     
     @staticmethod
@@ -42,6 +44,12 @@ class FilterStrings:
                 cellular 0/1/0 lte profile create 1 APN.domain
 
                 controller Cellular 0/1/0'''
+        
+        return flag
+    
+    @staticmethod
+    def manual_enroll_string():
+        flag = '''Manual Certificate Enrollment'''
         
         return flag
     
