@@ -59,12 +59,12 @@ class CleanConfig:
             with open(self.path_to_config, 'w', encoding='utf-8') as file:
                 file.writelines(content)
         else:
-            print("[!] Filter setting stopped working in file_ending_cleanup function. The filter needs to be changed.")
+            print("[!] Filter setting stopped working in file_ending_cleanup function. The filter needs to be changed!")
 			
 
                 
     
-    def file_mid_content_cleanup(input_file, start_string, end_string):
+    def file_mid_content_cleanup(start_string, end_string):
         pass
     
 
@@ -74,7 +74,7 @@ if __name__ == "__main__":
     path = r"C:\Users\brani\OneDrive\Počítač\DMVPN config\DMVPN_Configurator\Config\DMVPN - Copy.txt"
 
 
-    setup_config = {'Location info': [{'Region': 'APAC'}, 
+    setup_config = {'Location info': [{'Region': 'EMEA'}, 
                                       {'City': 'Washington'}], 'WAN info': [{'Hostname': 'USAnr4003ALEX101'}, 
                                       {'Loopback': '10.173.130.16'}, {'Design': 'BASE'}, {'Migration from MPLS': 'True - Production router'}, 
                                       {'ZBFW': False}], 
