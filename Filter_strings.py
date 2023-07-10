@@ -33,7 +33,13 @@ class FilterStrings:
     
     @staticmethod
     def Cellular_string():
-        flag = '''Apendix'''
+        flag = '''Appendix
+
+                LTE Configuration
+
+                cellular 0/1/0 lte profile create 1 APN.domain
+
+                controller Cellular 0/1/0'''
         
         return flag
     
