@@ -25,10 +25,12 @@ class CleanConfig:
         if setup_config["Main Link"][5]["4G+Cellular"] == False: 
             self.file_ending_cleanup(target_string=FilterStrings("Ending").filter_string)
         else:
-            pass
-            #self.file_mid_content_cleanup(start_string=None, end_string=None)
+            '''This has to be finished.'''
+            print("Heres johny")
+            self.file_mid_content_cleanup(start_flag=FilterStrings("Ending").filter_string, 
+                                          end_flag=FilterStrings("Cellular").filter_string)
+            
         
-
     '''The beginning of the file will be cleaned up from unnecessary content'''
     
     def file_begining_cleanup(self, encoding='utf-8'):
@@ -65,36 +67,43 @@ class CleanConfig:
                        
         else:
             print("[!] Filter setting stopped working in file_ending_cleanup function. The filter needs to be changed!")
-			
-
-                
+			 
     
-    def file_mid_content_cleanup(self, start_string, end_string):
+    def file_mid_content_cleanup(self, start_flag, end_flag):
         content = get_txt_content(self.path_to_config)
-        start_lines = start_string.strip().split('\n')
-        end_lines = end_string.strip().split('\n')
+        start_lines = start_flag.strip().split('\n')
+        end_lines = end_flag.strip().split('\n')
         start_index = None
         end_index = None
 
         for i in range(len(content) - len(start_lines) + 1):
-            if content[i:i + len(start_lines)] == [line.strip() for line in start_lines]:
+            found_start = True
+            for j in range(len(start_lines)):
+                if content[i + j].strip() != start_lines[j].strip():
+                    found_start = False
+                    break
+            if found_start:
                 start_index = i
                 break
 
         if start_index is not None:
             for i in range(start_index + len(start_lines), len(content) - len(end_lines) + 1):
-                if content[i:i + len(end_lines)] == [line.strip() for line in end_lines]:
-                    end_index = i + len(end_lines)
+                found_end = True
+                for j in range(len(end_lines)):
+                    if content[i + j].strip() != end_lines[j].strip():
+                        found_end = False
+                        break
+                if found_end:
+                    end_index = i
                     break
 
         if start_index is not None and end_index is not None:
             content = content[:start_index] + content[end_index:]
             write_file(self.path_to_config, content)
-            
         else:
             print("Start or end string not found in the file.")
-    
 
+    
         
     
 if __name__ == "__main__":
@@ -106,7 +115,7 @@ if __name__ == "__main__":
                                       {'Loopback': '10.173.130.16'}, {'Design': 'BASE'}, {'Migration from MPLS': 'True - Production router'}, 
                                       {'ZBFW': False}], 
                                       'Main Link': [{'Main_IP+mask': '192.1.1.2/24'}, {'GW': '192.1.1.1'}, {'Main_port_speed': 100}, 
-                                     {'Tunnel_25/27_IP': '172.25.1.1'}, {'Main_DC_Tunnel_Speed': 20}, {'4G+Cellular': False}, {'APN': "apn.josko.sk"}], 
+                                     {'Tunnel_25/27_IP': '172.25.1.1'}, {'Main_DC_Tunnel_Speed': 20}, {'4G+Cellular': True}, {'APN': "apn.josko.sk"}], 
                                       'Backup Link': [{'Main_IP+mask': 'DHCP'}, {'Main_port_speed': 40}, {'Tunnel_26/28_IP': '172.26.1.1'}, {'Main_DC_Tunnel_Speed': 20}, 
                                                       {'4G+Cellular': False}], 'Zscaler': [{'Tunnel_type': 'IPsec'}, {'Main_Zscaler_limitation': 50}, {'Backup_Zscaler_limitation': 40}], 
                                       'LAN info': [{'LAN_interface': 'Vlan1'}, {'LAN_IP+mask': '10.2.2.1/25'}]}

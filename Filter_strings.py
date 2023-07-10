@@ -10,6 +10,8 @@ class FilterStrings:
             self.filter_string = self.get_region_string()
         elif filter_string == "Ending":
             self.filter_string = self.get_file_ending_cleanup_string()
+        elif filter_string == "Cellular":
+            self.filter_string = self.cellular_string()
     
     
     @staticmethod
@@ -32,7 +34,7 @@ class FilterStrings:
         return flag
     
     @staticmethod
-    def Cellular_string():
+    def cellular_string():
         flag = '''Appendix
 
                 LTE Configuration
