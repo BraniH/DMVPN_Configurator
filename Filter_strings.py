@@ -8,6 +8,8 @@ class FilterStrings:
         ''' decides which string will be returned'''
         if filter_string == "Region":
             self.filter_string = self.get_region_string()
+        elif filter_string == "Ending":
+            self.filter_string = self.get_file_ending_cleanup_string()
     
     
     @staticmethod
@@ -18,6 +20,13 @@ class FilterStrings:
 
                     Preparation'''
 
+        return flag
+    
+    @staticmethod
+    def get_file_ending_cleanup_string():
+        flag = '''created for wireless networks (e.g. SVI VLAN30 used by HCAccess)
+    into INSIDE security zone as a member!'''
+        
         return flag
     
     
