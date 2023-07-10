@@ -22,7 +22,7 @@ class CleanConfig:
         self.file_begining_cleanup()
 
         
-        if (setup_config["Main Link"][5]["4G+Cellular"] == False) and (setup_config["Backup Link"][5]["4G+Cellular"] == False): 
+        if (setup_config["Main Link"]["4G+Cellular"] == False) and (setup_config["Backup Link"]["4G+Cellular"] == False): 
             self.file_ending_cleanup(target_string=FilterStrings("Ending").filter_string)
         else:
             '''This has to be finished.'''
@@ -36,7 +36,7 @@ class CleanConfig:
     def file_begining_cleanup(self, encoding='utf-8'):
         
         region = FilterStrings("Region").filter_string
-        flag = region.replace("<Region>", self.setup_config["Location info"][0]["Region"])
+        flag = region.replace("<Region>", self.setup_config["Location info"]["Region"])
         flag_lines = flag.strip().split('\n')
         content = get_txt_content(self.path_to_config)
         

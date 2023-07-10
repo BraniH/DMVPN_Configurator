@@ -5,14 +5,14 @@ from Clean_config import CleanConfig
 
 
 def get_cells(sheet):
-    merged_unmerged_dict = {}
+    merged_dict = {}
 
     # Get the merged cell ranges
     merged_ranges = sheet.merged_cells.ranges
 
-    # Initialize the current merged key and unmerged values list
+    # Initialize the current merged key and unmerged values dictionary
     current_merged_key = None
-    unmerged_values = []
+    unmerged_values = {}
 
     # Iterate over the cells in columns A and B
     for row in sheet.iter_rows(min_row=1, min_col=1, max_col=2):
@@ -27,25 +27,25 @@ def get_cells(sheet):
                 # Extract the value from the merged cell
                 merged_value = merged_range.start_cell.value
 
-                # If a new merged key is encountered, update the current merged key and create a new list for unmerged values
+                # If a new merged key is encountered, update the current merged key and create a new dictionary for unmerged values
                 if merged_value != current_merged_key:
                     if current_merged_key is not None:
-                        merged_unmerged_dict[current_merged_key] = unmerged_values
+                        merged_dict[current_merged_key] = unmerged_values
                     current_merged_key = merged_value
-                    unmerged_values = []
+                    unmerged_values = {}
 
                 break
 
         # Check if the row has more than one cell
         if not is_merged and cell_B.value is not None:
             # Add the value of cell A as key and value of cell B as the value in the dictionary
-            unmerged_values.append({str(cell_A.value): cell_B.value})
+            unmerged_values[str(cell_A.value)] = cell_B.value
 
     # Add the last set of unmerged values to the dictionary
     if current_merged_key is not None:
-        merged_unmerged_dict[current_merged_key] = unmerged_values
+        merged_dict[current_merged_key] = unmerged_values
 
-    return merged_unmerged_dict
+    return merged_dict
 
 
 def parse_excel(filename, sheet_name):
@@ -58,11 +58,10 @@ def parse_excel(filename, sheet_name):
     # Select the specified sheet
     sheet = workbook[sheet_name]
 
-    # Get merged cells and unmerged cells dictionary
-    merged_unmerged_dict = get_cells(sheet)
-    print(merged_unmerged_dict)
+    # Get merged cells and unmerged cells list
+    merged_unmerged_list = get_cells(sheet)
 
-    return merged_unmerged_dict
+    return merged_unmerged_list
 
 
 def transform_to_txt(docx_file):
