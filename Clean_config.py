@@ -19,17 +19,20 @@ class CleanConfig:
     def __init__(self, path_to_config, setup_config):
         self.path_to_config = path_to_config
         self.setup_config = setup_config
+        
+        # [+] cleans up start of the config file from unnecessary content
         self.file_begining_cleanup()
 
-        
+        # [+] based on if the setup provided by the user choose 4G or not it will clear unnecessary content from branch 
+        # to either end of the file or until 4G config section. If 4G config is celected as true it also clears unnecessary
+        # config contend after 4G section
         if (setup_config["Main Link"]["4G+Cellular"] == False) and (setup_config["Backup Link"]["4G+Cellular"] == False): 
             self.file_ending_cleanup(target_string=FilterStrings("Ending").filter_string)
         else:
-            '''This has to be finished.'''
-            print("Heres johny")
             self.file_mid_content_cleanup(start_flag=FilterStrings("Ending").filter_string, 
                                           end_flag=FilterStrings("Cellular").filter_string)
             
+            self.file_ending_cleanup(target_string=FilterStrings("Manual enroll").filter_string)
         
     '''The beginning of the file will be cleaned up from unnecessary content'''
     

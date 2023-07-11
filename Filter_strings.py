@@ -49,7 +49,11 @@ class FilterStrings:
     
     @staticmethod
     def manual_enroll_string():
-        flag = '''Manual Certificate Enrollment'''
+        flag = '''interface Cellular0/1/0
+
+                description *** INET - Carrier Curcuit_type Access_speed ***
+
+                !! example: *** INET - VERIZON 4G 10Mbps *** (config generator)'''
         
         return flag
     
