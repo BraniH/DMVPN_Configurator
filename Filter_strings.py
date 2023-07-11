@@ -14,6 +14,8 @@ class FilterStrings:
             self.filter_string = self.cellular_string()
         elif filter_string == "Manual enroll":
             self.filter_string = self.manual_enroll_string()
+        elif filter_string == "ZBFW":
+            self.filter_string = self.ZBFW_string()
     
     
     @staticmethod
@@ -49,14 +51,15 @@ class FilterStrings:
     
     @staticmethod
     def manual_enroll_string():
-        flag = '''interface Cellular0/1/0
-
-                description *** INET - Carrier Curcuit_type Access_speed ***
-
-                !! example: *** INET - VERIZON 4G 10Mbps *** (config generator)'''
+        flag = '''Manual Certificate Enrollment'''
         
         return flag
     
+    @staticmethod
+    def ZBFW_string():
+        flag = '''Zone Base Firewall (ZBFW)'''
+        
+        return flag
     
     
 if __name__ == "__main__":

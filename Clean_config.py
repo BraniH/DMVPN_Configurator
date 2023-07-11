@@ -12,7 +12,12 @@ def get_txt_content(path, encoding='utf-8'):
 def write_file(path, content, encoding='utf-8'):
     with open(path, 'w', encoding=encoding) as file:
                 file.writelines(content)
+                
 
+def delete_line(path, target_string, content, encoding='utf-8'):
+    updated_content = [line for line in content if target_string not in line]
+    write_file(path, updated_content, encoding=encoding)
+    
 
 class CleanConfig:
     
@@ -23,19 +28,29 @@ class CleanConfig:
         # [+] cleans up start of the config file from unnecessary content
         self.file_begining_cleanup()
 
+        
         # [+] based on if the setup provided by the user choose 4G or not it will clear unnecessary content from branch 
         # to either end of the file or until 4G config section. If 4G config is celected as true it also clears unnecessary
         # config contend after 4G section
         if (setup_config["Main Link"]["4G+Cellular"] == False) and (setup_config["Backup Link"]["4G+Cellular"] == False): 
             self.file_ending_cleanup(target_string=FilterStrings("Ending").filter_string)
+            
+            # Remove ZBFW config if required
+            if setup_config["WAN info"]["ZBFW"] == False:
+                self.file_ending_cleanup(target_string=FilterStrings("ZBFW").filter_string, delete_target_string=True)
         else:
             self.file_mid_content_cleanup(start_flag=FilterStrings("Ending").filter_string, 
                                           end_flag=FilterStrings("Cellular").filter_string)
             
-            self.file_ending_cleanup(target_string=FilterStrings("Manual enroll").filter_string)
+            self.file_ending_cleanup(target_string=FilterStrings("Manual enroll").filter_string, delete_target_string=True)
+            
+            self.file_mid_content_cleanup(start_flag=FilterStrings("ZBFW").filter_string, 
+                                          end_flag=FilterStrings("Cellular").filter_string)
+            
         
-    '''The beginning of the file will be cleaned up from unnecessary content'''
+        
     
+    '''The beginning of the file will be cleaned up from unnecessary content'''
     def file_begining_cleanup(self, encoding='utf-8'):
         
         region = FilterStrings("Region").filter_string
@@ -53,7 +68,7 @@ class CleanConfig:
                     file.write(line)
                     
     
-    def file_ending_cleanup(self, target_string):
+    def file_ending_cleanup(self, target_string, delete_target_string=False):
         content = get_txt_content(self.path_to_config)
         target_lines = target_string.strip().split('\n')
         index = -1
@@ -70,6 +85,9 @@ class CleanConfig:
                        
         else:
             print("[!] Filter setting stopped working in file_ending_cleanup function. The filter needs to be changed!")
+            
+        if delete_target_string == True:
+            delete_line(self.path_to_config, target_string, content)
 			 
     
     def file_mid_content_cleanup(self, start_flag, end_flag):
