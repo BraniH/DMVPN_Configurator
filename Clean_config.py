@@ -44,8 +44,10 @@ class CleanConfig:
             
             self.file_ending_cleanup(target_string=FilterStrings("Manual enroll").filter_string, delete_target_string=True)
             
-            self.file_mid_content_cleanup(start_flag=FilterStrings("ZBFW").filter_string, 
-                                          end_flag=FilterStrings("Cellular").filter_string)
+            # Remove ZBFW config if required
+            if setup_config["WAN info"]["ZBFW"] == False:
+                self.file_mid_content_cleanup(start_flag=FilterStrings("ZBFW").filter_string, 
+                                            end_flag=FilterStrings("Cellular").filter_string)
             
         
         
