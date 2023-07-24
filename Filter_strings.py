@@ -16,6 +16,12 @@ class FilterStrings:
             self.filter_string = self.manual_enroll_string()
         elif filter_string == "ZBFW":
             self.filter_string = self.ZBFW_string()
+        elif filter_string == "LAN_Interface":
+            self.filter_string = self.lanint_string()
+        elif filter_string == "EIGRP_Ending":
+            self.filter_string = self.EIGRP_ending_string()
+        elif filter_string == "EIGRP_Starting":
+            self.filter_string = self.EIGRP_starting_string()
     
     
     @staticmethod
@@ -58,6 +64,27 @@ class FilterStrings:
     @staticmethod
     def ZBFW_string():
         flag = '''Zone Base Firewall (ZBFW)'''
+        
+        return flag
+    
+    
+    @staticmethod
+    def lanint_string():
+        flag = '''LAN interface configuration'''
+        
+        return flag
+    
+    
+    @staticmethod
+    def EIGRP_ending_string():
+        flag = '''Certificate Enrollment'''
+        
+        return flag
+    
+    
+    @staticmethod
+    def EIGRP_starting_string():
+        flag = '''EIGRP Summary'''
         
         return flag
     

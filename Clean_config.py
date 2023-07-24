@@ -48,6 +48,13 @@ class CleanConfig:
             if setup_config["WAN info"]["ZBFW"] == False:
                 self.file_mid_content_cleanup(start_flag=FilterStrings("ZBFW").filter_string, 
                                             end_flag=FilterStrings("Cellular").filter_string)
+                
+        self.file_mid_content_cleanup(start_flag=FilterStrings("LAN_Interface").filter_string,
+                                      end_flag=FilterStrings("EIGRP_Ending").filter_string)
+        
+        
+        self.file_mid_content_cleanup(start_flag=FilterStrings("EIGRP_Starting").filter_string,
+                                      end_flag=FilterStrings("EIGRP_Ending").filter_string)
             
         
         
