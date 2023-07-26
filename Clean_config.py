@@ -50,6 +50,37 @@ class CleanConfig:
                                             end_flag=FilterStrings("Cellular").filter_string)
                 
         
+        #Removes all branch configurations except one selected by the user
+        if setup_config["WAN info"]["Design"].upper() == "BASE":
+
+            if setup_config["Location info"]["Region"] == "EMEA":
+                self.file_mid_content_cleanup(start_flag=FilterStrings("SMART").filter_string,
+                                            end_flag=FilterStrings("LAN_Interface").filter_string)
+            else:
+                self.file_mid_content_cleanup(start_flag=FilterStrings("SMART").filter_string,
+                                            end_flag=FilterStrings("EIGRP_Starting").filter_string)
+                
+            
+        elif setup_config["WAN info"]["Design"].upper() == "SMART":
+            
+            self.file_mid_content_cleanup(start_flag=FilterStrings("BASE").filter_string,
+                                            end_flag=FilterStrings("SMART").filter_string)
+            
+            if setup_config["Location info"]["Region"] == "EMEA":
+                self.file_mid_content_cleanup(start_flag=FilterStrings("FLOW").filter_string,
+                                            end_flag=FilterStrings("LAN_Interface").filter_string)
+            else:
+                self.file_mid_content_cleanup(start_flag=FilterStrings("FLOW").filter_string,
+                                            end_flag=FilterStrings("EIGRP_Starting").filter_string)
+            
+        elif setup_config["WAN info"]["Design"].upper() == "FLOW":
+            
+            self.file_mid_content_cleanup(start_flag=FilterStrings("BASE").filter_string,
+                                            end_flag=FilterStrings("FLOW").filter_string)
+        else:
+            print("[!] Wrong value set by the user!")
+        
+        
         # Handles EIGRP, coverged, incoutnry hub, Lan interface configuration, converged
         if setup_config["Location info"]["Region"] == "EMEA":
             self.file_mid_content_cleanup(start_flag=FilterStrings("LAN_Interface").filter_string,
@@ -80,8 +111,6 @@ class CleanConfig:
             self.file_mid_content_cleanup(start_flag=FilterStrings("EIGRP_Starting").filter_string,
                                         end_flag=FilterStrings("UP_to_Certificate_Enrollment").filter_string)
             
-    
-        
         
     '''The beginning of the file will be cleaned up from unnecessary content'''
     def file_begining_cleanup(self, encoding='utf-8'):

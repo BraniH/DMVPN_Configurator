@@ -36,8 +36,6 @@ class FilterStrings:
             self.filter_string = self.flow_branch_string()
         
  
-    
-    
     @staticmethod
     def get_region_string():
         flag = '''Branch <Region>
