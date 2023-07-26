@@ -28,6 +28,12 @@ class FilterStrings:
             self.filter_string = self.Converged_router_string()
         elif filter_string == "In-Country_Hub":
             self.filter_string = self.In_country_Hub_string()
+        elif filter_string == "BASE":
+            self.filter_string = self.base_branch_string()
+        elif filter_string == "SMART":
+            self.filter_string = self.smart_branch_string()
+        elif filter_string == "FLOW":
+            self.filter_string = self.flow_branch_string()
         
  
     
@@ -114,6 +120,37 @@ class FilterStrings:
     @staticmethod
     def In_country_Hub_string():
         flag = '''In-Country Hub'''
+        
+        return flag
+    
+    
+    @staticmethod
+    def base_branch_string():
+        flag = '''Base
+
+                INET'''
+        
+        return flag
+    
+   
+    @staticmethod
+    def smart_branch_string():
+        flag = '''Smart
+
+                INET
+
+                INET & INET2'''
+        
+        return flag
+    
+    
+    @staticmethod
+    def flow_branch_string():
+        flag = '''Flow
+
+                INET
+
+                INET & INET2'''
         
         return flag
     
