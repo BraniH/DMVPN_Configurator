@@ -25,12 +25,12 @@ class CleanConfig:
         self.path_to_config = path_to_config
         self.setup_config = setup_config
         
-        # [+] cleans up start of the config file from unnecessary content
+        # [+] cleans up start of the config file from unnecessary content until the specified region
         self.file_begining_cleanup()
 
         
         # [+] based on if the setup provided by the user choose 4G or not it will clear unnecessary content from branch 
-        # to either end of the file or until 4G config section. If 4G config is celected as true it also clears unnecessary
+        # to either end of the file or until 4G config section. If 4G config is selected as true it also clears unnecessary
         # config contend after 4G section
         if (setup_config["Main Link"]["4G+Cellular"] == False) and (setup_config["Backup Link"]["4G+Cellular"] == False): 
             self.file_ending_cleanup(target_string=FilterStrings("Ending").filter_string)
@@ -50,16 +50,39 @@ class CleanConfig:
                                             end_flag=FilterStrings("Cellular").filter_string)
                 
         
+        # Handles EIGRP, coverged, incoutnry hub, Lan interface configuration, converged
         if setup_config["Location info"]["Region"] == "EMEA":
             self.file_mid_content_cleanup(start_flag=FilterStrings("LAN_Interface").filter_string,
-                                        end_flag=FilterStrings("EIGRP_Ending").filter_string)
+                                        end_flag=FilterStrings("UP_to_Certificate_Enrollment").filter_string)
+        
+        elif setup_config["Location info"]["Region"] == "NAM":
+        
+            if setup_config["WAN info"]["Migration from MPLS"] != "True - Production router" and setup_config["WAN info"]["Converged router"] == False:
+                self.file_mid_content_cleanup(start_flag=FilterStrings("EIGRP_Starting").filter_string,
+                                        end_flag=FilterStrings("UP_to_Certificate_Enrollment").filter_string)
+            
+            elif setup_config["WAN info"]["Migration from MPLS"] == "True - Production router" and setup_config["WAN info"]["Converged router"] == False:
+                self.file_mid_content_cleanup(start_flag=FilterStrings("EIGRP_Starting").filter_string,
+                                        end_flag=FilterStrings("MPLS_Migration").filter_string)
+                
+            elif setup_config["WAN info"]["Migration from MPLS"] != "True - Production router" and setup_config["WAN info"]["Converged router"] == True:
+                self.file_mid_content_cleanup(start_flag=FilterStrings("EIGRP_Starting").filter_string,
+                                        end_flag=FilterStrings("Converged_router").filter_string)
+                self.file_mid_content_cleanup(start_flag=FilterStrings("In-Country_Hub").filter_string,
+                                        end_flag=FilterStrings("UP_to_Certificate_Enrollment").filter_string)
+            else:
+                 self.file_mid_content_cleanup(start_flag=FilterStrings("EIGRP_Starting").filter_string,
+                                        end_flag=FilterStrings("Converged_router").filter_string)
+                 self.file_mid_content_cleanup(start_flag=FilterStrings("In-Country_Hub").filter_string,
+                                        end_flag=FilterStrings("MPLS_Migration").filter_string)
+    
         else:
             self.file_mid_content_cleanup(start_flag=FilterStrings("EIGRP_Starting").filter_string,
-                                        end_flag=FilterStrings("EIGRP_Ending").filter_string)
+                                        end_flag=FilterStrings("UP_to_Certificate_Enrollment").filter_string)
             
-        
-        
     
+        
+        
     '''The beginning of the file will be cleaned up from unnecessary content'''
     def file_begining_cleanup(self, encoding='utf-8'):
         

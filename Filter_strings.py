@@ -18,10 +18,18 @@ class FilterStrings:
             self.filter_string = self.ZBFW_string()
         elif filter_string == "LAN_Interface":
             self.filter_string = self.lanint_string()
-        elif filter_string == "EIGRP_Ending":
-            self.filter_string = self.EIGRP_ending_string()
+        elif filter_string == "UP_to_Certificate_Enrollment":
+            self.filter_string = self.Cert_enroll_string()
         elif filter_string == "EIGRP_Starting":
-            self.filter_string = self.EIGRP_starting_string()
+            self.filter_string = self.EIGRP_start_string()
+        elif filter_string == "MPLS_Migration":
+            self.filter_string = self.Migration_MPLS_string()
+        elif filter_string == "Converged_router":
+            self.filter_string = self.Converged_router_string()
+        elif filter_string == "In-Country_Hub":
+            self.filter_string = self.In_country_Hub_string()
+        
+ 
     
     
     @staticmethod
@@ -76,15 +84,36 @@ class FilterStrings:
     
     
     @staticmethod
-    def EIGRP_ending_string():
+    def Cert_enroll_string():
         flag = '''Certificate Enrollment'''
         
         return flag
     
     
     @staticmethod
-    def EIGRP_starting_string():
+    def EIGRP_start_string():
         flag = '''EIGRP Summary'''
+        
+        return flag
+    
+    
+    @staticmethod
+    def Migration_MPLS_string():
+        flag = '''Migration from MPLS'''
+        
+        return flag
+    
+    
+    @staticmethod
+    def Converged_router_string():
+        flag = '''Converged router'''
+        
+        return flag
+    
+    
+    @staticmethod
+    def In_country_Hub_string():
+        flag = '''In-Country Hub'''
         
         return flag
     
