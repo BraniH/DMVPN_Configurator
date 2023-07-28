@@ -119,15 +119,39 @@ class CleanConfig:
         flag = region.replace("<Region>", self.setup_config["Location info"]["Region"])
         flag_lines = flag.strip().split('\n')
         content = get_txt_content(self.path_to_config)
+ 
+        #kinda works - one line check - will be deleted once Im sure multiline check works as expected
+        # with open(self.path_to_config, 'w', encoding=encoding) as file:
+        #     found = False
+        #     for line in content:
+        #         if line.strip() == flag_lines[0]:
+        #             found = True
+        #         if found:
+        #             file.write(line)
         
-
+        
         with open(self.path_to_config, 'w', encoding=encoding) as file:
             found = False
+            flag_index = 0
+
             for line in content:
-                if line.strip() == flag_lines[0]:
-                    found = True
+                
                 if found:
                     file.write(line)
+                    
+                elif line.strip() == flag_lines[flag_index].strip() and found == False:
+                    flag_index += 1
+
+                    if flag_index == len(flag_lines):
+                        found = True
+                        for part in flag_lines:
+                            file.write(part.strip() + "\n")
+                                           
+                else:
+                    flag_index = 0
+
+        
+        
                     
     
     def file_ending_cleanup(self, target_string, delete_target_string=False):
