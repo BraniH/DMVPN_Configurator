@@ -2,6 +2,7 @@ import os
 import openpyxl
 import pypandoc
 from Clean_config import CleanConfig
+from Parse_config import ParseConfig
 
 
 def get_cells(sheet):
@@ -91,7 +92,7 @@ if __name__ == "__main__":
   
   
     ''' Parsing values into the config '''
-    
+    ParseConfig(os.getcwd() + standard_config.replace("docx", "txt"), setup_config)
     
 
 
