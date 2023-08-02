@@ -30,6 +30,12 @@ class ParseConfig:
     @staticmethod
     def _replacement_rules(line, setup_config):
         condition_line = line.lower()
+        '''Tu26 issue has to be sloved in next commit'''
+        tu_25_flag = False
+        
+        if "interface tunnel25" in condition_line:
+            tu_25_flag = True
+        
         if "<xxxnr0000aaaa101>" in condition_line or "<hostname>" in condition_line:
             line = condition_line.replace("<xxxnr0000aaaa101>", setup_config["WAN info"]["Hostname"]) \
                                  .replace("<hostname>", setup_config["WAN info"]["Hostname"])
@@ -65,7 +71,7 @@ class ParseConfig:
         elif "[2m-50m]" in condition_line:
             line = condition_line.replace("[2m-50m]", str(setup_config["Main Link"]["Main_DC_Tunnel_Speed"]) + "M")
         
-
+        print(tu_25_flag)
         return line
     
     
