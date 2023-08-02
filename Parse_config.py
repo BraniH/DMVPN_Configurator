@@ -58,6 +58,12 @@ class ParseConfig:
                  line = condition_line.replace("<gw>", setup_config["Main Link"]["Main_GW"])
             else:
                 line = condition_line.replace("ip route vrf inet 0.0.0.0 0.0.0.0 <gw>", "")
+        elif "<gre ip>" in condition_line:
+            line = condition_line.replace("<gre ip>", setup_config["Main Link"]["Tunnel_25/27_IP"])
+        elif "[ same as nhrp group, but in kbps]" in condition_line:
+            line = condition_line.replace("[ same as nhrp group, but in kbps]", str(setup_config["Main Link"]["Main_DC_Tunnel_Speed"]) + "000")
+        elif "[2m-50m]" in condition_line:
+            line = condition_line.replace("[2m-50m]", str(setup_config["Main Link"]["Main_DC_Tunnel_Speed"]) + "M")
         
 
         return line
