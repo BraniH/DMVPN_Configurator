@@ -28,7 +28,7 @@ def cidr_to_subnet_mask(cidr):
 
 class ParseConfig:
     @staticmethod
-    def _replacement_rules(line, setup_config, inet2_flag):
+    def _replacement_rules(line, setup_config, inet2_flag, backup_tunnel_flag):
         condition_line = line.lower()
 
         #baseline configuration handling
@@ -46,7 +46,7 @@ class ParseConfig:
             speed = str(main_speed) if int(main_speed) >= int(backup_speed) else str(backup_speed)
             line = condition_line.replace("[upload bandwidth fo internet link bps]", speed + "000000").replace("\n", "")
         
-        #final configuration handling 
+        #final configuration  
         elif "<country, city, sidxxxx>" in condition_line:
             line = condition_line.replace("<country", setup_config["WAN info"]["Hostname"][:3]) \
                                  .replace("city", setup_config["Location info"]["City"]) \
@@ -81,15 +81,18 @@ class ParseConfig:
             else:
                 line = condition_line.replace(condition_line, "")
         
-        #Tunnels handling	        
+        #Tunnels handling          	        
         elif "<gre ip>" in condition_line:
-            line = condition_line.replace("<gre ip>", setup_config["Main Link"]["Tunnel_25/27_IP"])
+            tunnel_info = setup_config["Main Link"]["Tunnel_25/27_IP"] if not backup_tunnel_flag else setup_config["Backup Link"]["Tunnel_26/28_IP"]
+            line = condition_line.replace("<gre ip>", tunnel_info)
             
         elif "[ same as nhrp group, but in kbps]" in condition_line:
-            line = condition_line.replace("[ same as nhrp group, but in kbps]", str(setup_config["Main Link"]["Main_DC_Tunnel_Speed"]) + "000")
+            tunnel_info = setup_config["Main Link"]["Main_DC_Tunnel_Speed"] if not backup_tunnel_flag else setup_config["Backup Link"]["Backup_DC_Tunnel_Speed"]
+            line = condition_line.replace("[ same as nhrp group, but in kbps]", str(tunnel_info) + "000")
             
         elif "[2m-50m]" in condition_line:
-            line = condition_line.replace("[2m-50m]", str(setup_config["Main Link"]["Main_DC_Tunnel_Speed"]) + "M")
+            tunnel_info = setup_config["Main Link"]["Main_DC_Tunnel_Speed"] if not backup_tunnel_flag else setup_config["Backup Link"]["Backup_DC_Tunnel_Speed"]
+            line = condition_line.replace("[2m-50m]", str(tunnel_info) + "M")
         
         
         return line
@@ -104,7 +107,8 @@ class ParseConfig:
         
         for line in content:
             final_config.append(ParseConfig._replacement_rules(line, setup_config, 
-                                                               inet2_flag = any("vrf forwarding INET2" in configured_line for configured_line in final_config)))
+                                                               inet2_flag = any("vrf forwarding INET2" in configured_line for configured_line in final_config),
+                                                               backup_tunnel_flag = any("Tunnel26" in configured_line for configured_line in final_config)))
             
         # print(final_config)
         return final_config
