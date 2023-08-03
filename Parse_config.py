@@ -28,56 +28,87 @@ def cidr_to_subnet_mask(cidr):
 
 class ParseConfig:
     @staticmethod
-    def _replacement_rules(line, setup_config):
+    def _replacement_rules(line, setup_config, inet2_flag):
         condition_line = line.lower()
-        '''Tu26 issue has to be sloved in next commit'''
-        tu_25_flag = False
-        
-        if "interface tunnel25" in condition_line:
-            tu_25_flag = True
-        
+
+        #baseline configuration handling
         if "<xxxnr0000aaaa101>" in condition_line or "<hostname>" in condition_line:
             line = condition_line.replace("<xxxnr0000aaaa101>", setup_config["WAN info"]["Hostname"]) \
                                  .replace("<hostname>", setup_config["WAN info"]["Hostname"])
+                                 
         elif re.search(r"<loopback\d+>|10.17x.x.x", condition_line):
             line = re.sub(r"<loopback\d+>", setup_config["WAN info"]["Loopback"], condition_line) \
                       .replace("10.17x.x.x", setup_config["WAN info"]["Loopback"])
+                      
         elif "[upload bandwidth fo internet link bps]" in condition_line:
             main_speed = setup_config["Main Link"]["Main_port_speed"]
             backup_speed = setup_config["Backup Link"]["Backup_port_speed"]
             speed = str(main_speed) if int(main_speed) >= int(backup_speed) else str(backup_speed)
             line = condition_line.replace("[upload bandwidth fo internet link bps]", speed + "000000").replace("\n", "")
+        
+        #final configuration handling 
         elif "<country, city, sidxxxx>" in condition_line:
             line = condition_line.replace("<country", setup_config["WAN info"]["Hostname"][:3]) \
                                  .replace("city", setup_config["Location info"]["City"]) \
                                  .replace("sidxxxx>", f"SID{setup_config['WAN info']['Hostname'][5:9]}")
-        elif "<wan interface 1>" in condition_line:
-            line = condition_line.replace("<wan interface 1>", "g0/0/1")
+        
+        
+        #wan interface handling               
+        elif "<wan interface 1>" in condition_line or "<wan interface 2>" in condition_line:
+            pattern = r"<wan interface ([12])>"
+            line = re.sub(pattern, lambda match: "g0/0/1" if match.group(1) == '1' else "g0/0/0", condition_line) 
+             
         elif "<public ip> | dhcp" in condition_line:
             if str(setup_config["Main Link"]["Main_IP+mask"]).lower() != "dhcp":
                 ip, mask = setup_config["Main Link"]["Main_IP+mask"].split("/")
                 line = condition_line.replace("<public ip> | dhcp", ip + " " + cidr_to_subnet_mask(int(mask)))
             else:
                 line = condition_line.replace("<public ip> | dhcp", "dhcp")
-        elif "<gw>" in condition_line and setup_config["WAN info"]["Design"].upper() == "BASE":
-            if str(setup_config["Main Link"]["Main_IP+mask"]).lower() != "dhcp":
-                 line = condition_line.replace("<gw>", setup_config["Main Link"]["Main_GW"])
+             
+        elif "<wan ip> | dhcp" in condition_line:
+            if str(setup_config["Backup Link"]["Backup_IP+mask"]).lower() != "dhcp":
+                ip, mask = setup_config["Backup Link"]["Backup_IP+mask"].split("/")
+                line = condition_line.replace("<wan ip> | dhcp", ip + " " + cidr_to_subnet_mask(int(mask)))
             else:
-                line = condition_line.replace("ip route vrf inet 0.0.0.0 0.0.0.0 <gw>", "")
+                line = condition_line.replace("<wan ip> | dhcp", "dhcp")
+        
+        #gateway handling
+        elif "<gw>" in condition_line:
+            if str(setup_config["Main Link"]["Main_IP+mask"]).lower() != "dhcp" and inet2_flag == False:
+                line = condition_line.replace("<gw>", setup_config["Main Link"]["Main_GW"])
+            elif str(setup_config["Backup Link"]["Backup_IP+mask"]).lower() != "dhcp" and inet2_flag == True:
+                line = condition_line.replace("<gw>", setup_config["Backup Link"]["Backup_GW"])
+            else:
+                line = condition_line.replace(condition_line, "")
+        
+        #Tunnels handling	        
         elif "<gre ip>" in condition_line:
             line = condition_line.replace("<gre ip>", setup_config["Main Link"]["Tunnel_25/27_IP"])
+            
         elif "[ same as nhrp group, but in kbps]" in condition_line:
             line = condition_line.replace("[ same as nhrp group, but in kbps]", str(setup_config["Main Link"]["Main_DC_Tunnel_Speed"]) + "000")
+            
         elif "[2m-50m]" in condition_line:
             line = condition_line.replace("[2m-50m]", str(setup_config["Main Link"]["Main_DC_Tunnel_Speed"]) + "M")
         
-        print(tu_25_flag)
+        
         return line
     
     
     @staticmethod
     def look_and_replace_strings(content, setup_config):
-        return [ParseConfig._replacement_rules(line, setup_config) for line in content]
+        final_config = []
+        # for line in content:
+        #     final_config.append(ParseConfig._replacement_rules(line, setup_config, 
+        #                                                        inet2_flag = any("INET2" in configured_line for configured_line in final_config)))
+        
+        for line in content:
+            final_config.append(ParseConfig._replacement_rules(line, setup_config, 
+                                                               inet2_flag = any("vrf forwarding INET2" in configured_line for configured_line in final_config)))
+            
+        # print(final_config)
+        return final_config
+        #return [ParseConfig._replacement_rules(line, setup_config) for line in content]
 
 
     def __init__(self, path_to_config, setup_config):
@@ -90,3 +121,4 @@ class ParseConfig:
         write_file(self.path_to_config, final_config)
         print("[+] file saved successfully")
         
+
