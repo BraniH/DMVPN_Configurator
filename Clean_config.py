@@ -1,4 +1,5 @@
 from Filter_strings import FilterStrings
+import re
 
 
 def get_txt_content(path, encoding='utf-8'):
@@ -50,7 +51,6 @@ def write_content_at_line(file_path, line_number, content_to_write):
 
     # Insert the new content at the specified line number
     for line in content_to_write:
-        print(line)
         insert_index += 1
         content.insert(insert_index, line + f"\n")
 
@@ -116,7 +116,7 @@ class CleanConfig:
             
             self.file_mid_content_cleanup(start_flag=FilterStrings("BASE").filter_string,
                                             end_flag=FilterStrings("FLOW").filter_string)
-
+            # self.flow_config_cleanup()
             
         else:
             print("[!] Wrong value set by the user!")
@@ -163,17 +163,7 @@ class CleanConfig:
         region = FilterStrings("Region").filter_string
         flag = region.replace("<Region>", self.setup_config["Location info"]["Region"])
         flag_lines = flag.strip().split('\n')
-        content = get_txt_content(self.path_to_config)
- 
-        #kinda works - one line check - will be deleted once Im sure multiline check works as expected !!!
-        # with open(self.path_to_config, 'w', encoding=encoding) as file:
-        #     found = False
-        #     for line in content:
-        #         if line.strip() == flag_lines[0]:
-        #             found = True
-        #         if found:
-        #             file.write(line)
-        
+        content = get_txt_content(self.path_to_config) 
         
         with open(self.path_to_config, 'w', encoding=encoding) as file:
             found = False
@@ -250,9 +240,7 @@ class CleanConfig:
             
     
     #sorts flow config
-    #!!!! nebude ani treba path ale globalnu premennú !!!
     def flow_config_cleanup(self, encoding='utf'):
-        #!!!! nebude ani treba path ale globalnu premennú !!!
         config = get_txt_content(self.path_to_config)
         clear_config = []
         start_flag = False
@@ -260,10 +248,12 @@ class CleanConfig:
         
         for line in config:
             line_counter += 1
-            if "Router 101 (INET)                 | Router 102 (INET2)" in line:
+            if "<Public IP> | dhcp" in line:
+                    line = line.replace("<Public IP> | dhcp", "<wan ip>")
+            if "Router 101 (INET)" in line and "Router 102 (INET2)" in line:
                 start_flag = True
                 start_del_line = line_counter - 1
-            elif "| spanning-tree guard loop          | spanning-tree guard loop         |" in line:
+            elif "| spanning-tree guard loop " in line:
                 start_flag = False
                 clear_config.append(line)
                 end_del_line = line_counter + 3
@@ -271,35 +261,32 @@ class CleanConfig:
             if start_flag == True:
                 clear_config.append(line)
         
-        
-        not_wanted = ("+-----------------------------------+----------------------------------+", 
-                    "+===================================+==================================+")
+        not_wanted = ("----+----", 
+                      "====+====",
+                      "         |          ")
         
         element_index = 0
-
         for line in clear_config:
             for string in not_wanted:
                 if string in line:
                     clear_config.pop(element_index)
 
-                
             element_index += 1
 
         router1 = []
-        router2 = []
+        router2 = ["\n"]
 
         for line in clear_config:
+            print(line)
             last_occurrence_index = line.rfind("|")
             line = (line[:last_occurrence_index] + line[last_occurrence_index+1:]).replace(line[0], "", 1)
-            element_r1, element_r2 = line.split("|")[0], line.split("|")[1]
+            element_r1, element_r2 = line.split("|")[0], line.split("|")[1].replace("\n","")
             router1.append(element_r1)
             router2.append(element_r2)
 
-
         merged_config = router1 + router2
-        #!!!! nebude ani treba path ale globalnu premennú !!!
+        
         delete_content_between_lines(self.path_to_config, start_del_line, end_del_line)
-        #!!!! nebude ani treba path ale globalnu premennú !!!
         write_content_at_line(self.path_to_config, start_del_line, merged_config)    
         
     

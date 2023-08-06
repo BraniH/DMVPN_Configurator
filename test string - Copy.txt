@@ -1,0 +1,397 @@
+
+
+INET & INET2
+
+
+ Router 101 (INET)                                     
+ interface gi0/0/1                                     
+ description *** WAN ***                               
+ vrf forwarding INET                                   
+ ip address <wan ip>                         
+ no ip redirects                                       
+ no ip unreachables                                    
+ no ip proxy-arp                                       
+ ip access-group ACL-DMVPN in                          
+ negotiation auto                                      
+ no mop enabled                                        
+ no lldp transmit                                      
+ no lldp receive                                       
+ service-policy output outside-if                      
+                                                       
+ ip route vrf INET 0.0.0.0 0.0.0.0 <gw>                
+                                                       
+ interface Tunnel25                                    
+ bandwidth [ same as nhrp group, but in kbps]          
+ ip address <GRE IP> 255.255.240.0                     
+ no ip redirects                                       
+ ip mtu 1300                                           
+ ip nhrp authentication S3cur!ty                       
+ ip nhrp network-id 25                                 
+ ip nhrp nhs 172.25.0.1 nbma 203.117.50.68 multicast   
+ ip nhrp nhs 172.25.0.2 nbma 203.208.237.104 multicast 
+ ip nhrp nhs 172.25.0.3 nbma 118.67.64.4 multicast     
+ ip nhrp nhs 172.25.0.4 nbma 118.67.64.8 multicast     
+                                                       
+ ip nhrp registration no-unique                        
+ ip tcp adjust-mss 1260                                
+ delay 1000                                            
+ nhrp group [2M-50M]                                   
+ nhrp map group 2M service-policy output 2M            
+ nhrp map group 4M service-policy output 4M            
+ nhrp map group 6M service-policy output 6M            
+ nhrp map group 8M service-policy output 8M            
+ nhrp map group 10M service-policy output 10M          
+ nhrp map group 20M service-policy output 20M          
+ nhrp map group 30M service-policy output 30M          
+ nhrp map group 40M service-policy output 40M          
+ nhrp map group 50M service-policy output 50M          
+ nhrp map group 75M service-policy output 75M          
+ nhrp map group 100M service-policy output 100M        
+                                                       
+ if-state nhrp                                         
+ tunnel source gi0/0/1                                 
+ tunnel mode gre multipoint                            
+ tunnel vrf INET                                       
+ tunnel protection ipsec profile DMVPN-IPSEC-PKI       
+                                                       
+ route-map RM_DMVPN_OUT permit 10                      
+ set metric 1000 300000 255 1 1500                     
+ set tag 101                                           
+ route-map RM_DMVPN_IN deny 10                         
+ match tag 101 102                                     
+ route-map RM_DMVPN_IN permit 20                       
+                                                       
+ route-map RM_NO_102_ROUTES deny 10                    
+ description Block routes from 102 router              
+ match tag 102                                         
+ route-map RM_NO_102_ROUTES permit 20                  
+                                                       
+                                                       
+ router eigrp Overlay                                  
+ address-family ipv4 unicast autonomous-system 1       
+ af-interface Tunnel25                                 
+ no passive-interface                                  
+ exit-af-interface                                     
+ topology base                                         
+ redistribute eigrp 99 route-map RM_DMVPN_IN           
+ redistribute connected metric 100000 10 255 1 1500    
+ network 172.25.0.0 0.0.15.255                         
+                                                       
+ router eigrp 99                                       
+ distribute-list route-map RM_NO_102_ROUTES in         
+ network <transfer subnet> 0.0.0.7                     
+ redistribute connected route-map RM_DMVPN_OUT         
+ redistribute eigrp 1 route-map RM_DMVPN_OUT           
+ passive-interface default                             
+ no passive-interface <LAN Interface>                  
+                                                       
+ interface <Gi0/0/0 or VlanX>                          
+ description <*** L3 switch hostname ***>              
+ ip address < first ip of transfer subnet /29>         
+ negotiation auto                                      
+                                                       
+                                                       
+                                                       
+ L3 SWITCH 01                                          
+                                                       
+ router eigrp 99                                       
+ network <transfer subnet> 0.0.0.7                     
+ redistribute connected                                
+ redistribute static                                   
+ passive-interface default                             
+ no passive-interface Vlan99                           
+ eigrp stub connected static summary                   
+                                                       
+ interface Vlan99                                      
+ description *** Transfer ***                          
+ ip address <sixth ip of transfer subnet /29>          
+ no ip redirects                                       
+ no ip proxy-arp                                       
+                                                       
+ interface <Vlan XX>                                   
+ standby 1 ip <LAN VIP>                                
+ standby 1 priority 150                                
+ standby 1 preempt                                     
+ standby 1 preempt delay minimum 180                   
+                                                       
+ vlan 99                                               
+ name TRANSFER                                         
+                                                       
+ interface < to Router 101 >                           
+ description <*** hostname Router 101 ***>             
+ switchport access vlan 99                             
+ switchport mode access                                
+ storm-control broadcast level 40.00                   
+ storm-control multicast level 40.00                   
+ spanning-tree portfast                                
+                                                       
+ interface <to L3 switch 02>                           
+ description <*** hostname L3 switch02 ***>            
+ switchport trunk encapsulation dot1q                  
+ switchport mode trunk                                 
+ storm-control broadcast level 40.00                   
+ storm-control multicast level 40.00                   
+ spanning-tree guard loop                              
+ Router 102 (INET2)                                    
+
+ interface gi0/0/1                                     
+
+ description *** WAN ***                               
+
+ vrf forwarding INET2                                  
+
+ ip address <wan ip>                         
+
+ no ip redirects                                       
+
+ no ip unreachables                                    
+
+ no ip proxy-arp                                       
+
+ ip access-group ACL-DMVPN in                          
+
+ negotiation auto                                      
+
+ no mop enabled                                        
+
+ no lldp transmit                                      
+
+ no lldp receive                                       
+
+ service-policy output outside-if                      
+
+                                                       
+
+ ip route vrf INET2 0.0.0.0 0.0.0.0 <gw>               
+
+                                                       
+
+ interface Tunnel26                                    
+
+ bandwidth [ same as nhrp group, but in kbps]          
+
+ ip address <GRE IP> 255.255.240.0                     
+
+ no ip redirects                                       
+
+ ip mtu 1300                                           
+
+ ip nhrp authentication S3cur!ty                       
+
+ ip nhrp network-id 26                                 
+
+ ip nhrp nhs 172.26.0.1 nbma 203.117.50.69 multicast   
+
+ ip nhrp nhs 172.26.0.2 nbma 203.208.237.105 multicast 
+
+ ip nhrp nhs 172.26.0.3 nbma 118.67.64.5 multicast     
+
+ ip nhrp nhs 172.26.0.4 nbma 118.67.64.9 multicast     
+
+                                                       
+
+ ip nhrp registration no-unique                        
+
+ ip tcp adjust-mss 1260                                
+
+ delay 2000                                            
+
+ nhrp group [2M-50M]                                   
+
+ nhrp map group 2M service-policy output 2M            
+
+ nhrp map group 4M service-policy output 4M            
+
+ nhrp map group 6M service-policy output 6M            
+
+ nhrp map group 8M service-policy output 8M            
+
+ nhrp map group 10M service-policy output 10M          
+
+ nhrp map group 20M service-policy output 20M          
+
+ nhrp map group 30M service-policy output 30M          
+
+ nhrp map group 40M service-policy output 40M          
+
+ nhrp map group 50M service-policy output 50M          
+
+ nhrp map group 75M service-policy output 75M          
+
+ nhrp map group 100M service-policy output 100M        
+
+                                                       
+
+ if-state nhrp                                         
+
+ tunnel source gi0/0/1                                 
+
+ tunnel mode gre multipoint                            
+
+ tunnel vrf INET2                                      
+
+ tunnel protection ipsec profile DMVPN-IPSEC-PKI       
+
+                                                       
+
+ route-map RM_DMVPN_OUT permit 10                      
+
+ set metric 1000 600000 255 1 1500                     
+
+ set tag 102                                           
+
+ route-map RM_DMVPN_IN deny 10                         
+
+ match tag 101 102                                     
+
+ route-map RM_DMVPN_IN permit 20                       
+
+                                                       
+
+ route-map RM_NO_101_ROUTES deny 10                    
+
+ description Block routes from 101 router              
+
+ match tag 101                                         
+
+ route-map RM_NO_101_ROUTES permit 20                  
+
+                                                       
+
+                                                       
+
+ router eigrp Overlay                                  
+
+ address-family ipv4 unicast autonomous-system 1       
+
+ af-interface Tunnel26                                 
+
+ no passive-interface                                  
+
+ exit-af-interface                                     
+
+ topology base                                         
+
+ redistribute eigrp 99 route-map RM_DMVPN_IN           
+
+ redistribute connected metric 100000 10 255 1 1500    
+
+ network 172.26.0.0 0.0.15.255                         
+
+                                                       
+
+ router eigrp 99                                       
+
+ distribute-list route-map RM_NO_101_ROUTES in         
+
+ network <transfer subnet> 0.0.0.7                     
+
+ redistribute connected route-map RM_DMVPN_OUT         
+
+ redistribute eigrp 1 route-map RM_DMVPN_OUT           
+
+ passive-interface default                             
+
+ no passive-interface <LAN Interface>                  
+
+                                                       
+
+ interface <Gi0/0/0 or VlanX>                          
+
+ description <*** L3 switch hostname ***>              
+
+ ip address < second ip of transfer subnet /29>        
+
+ negotiation auto                                      
+
+                                                       
+
+                                                       
+
+                                                       
+
+ L3 SWITCH 02                                          
+
+                                                       
+
+ router eigrp 99                                       
+
+ network <transfer subnet> 0.0.0.7                     
+
+ redistribute connected                                
+
+ redistribute static                                   
+
+ passive-interface default                             
+
+ no passive-interface Vlan99                           
+
+ eigrp stub connected static summary                   
+
+                                                       
+
+ interface Vlan99                                      
+
+ description *** Transfer ***                          
+
+ ip address <fifth ip of transfer subnet /29>          
+
+ no ip redirects                                       
+
+ no ip proxy-arp                                       
+
+                                                       
+
+ interface <Vlan XX>                                   
+
+ standby 1 ip <LAN VIP>                                
+
+ standby 1 priority 50                                 
+
+ standby 1 preempt                                     
+
+ standby 1 preempt delay minimum 180                   
+
+                                                       
+
+ vlan 99                                               
+
+ name TRANSFER                                         
+
+                                                       
+
+ interface < to Router 102 >                           
+
+ description <*** hostname Router 102 ***>             
+
+ switchport access vlan 99                             
+
+ switchport mode access                                
+
+ storm-control broadcast level 40.00                   
+
+ storm-control multicast level 40.00                   
+
+ spanning-tree portfast                                
+
+                                                       
+
+ interface <to L3 switch 01>                           
+
+ description <*** hostname L3 switch01 ***>            
+
+ switchport trunk encapsulation dot1q                  
+
+ switchport mode trunk                                 
+
+ storm-control broadcast level 40.00                   
+
+ storm-control multicast level 40.00                   
+
+ spanning-tree guard loop                              
+
+Ahoj,
+cav
+
+dovi 
+dopo

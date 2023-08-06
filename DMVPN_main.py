@@ -69,7 +69,8 @@ def transform_to_txt(docx_file):
     txt_file = docx_file.rsplit(".", 1)[0] + ".txt"  # Generate the output .txt file path
 
     # Convert .docx to .txt using Pandoc
-    pypandoc.convert_file(docx_file, 'plain', outputfile=txt_file, format='docx')
+    extra_args=('--standalone','--wrap=none')
+    pypandoc.convert_file(docx_file, 'plain', outputfile=txt_file, format='docx', extra_args=extra_args)
 
     print(f"Conversion complete. Text saved to {txt_file}")
 

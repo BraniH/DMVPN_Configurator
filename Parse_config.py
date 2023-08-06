@@ -65,12 +65,13 @@ class ParseConfig:
             else:
                 line = condition_line.replace("<public ip> | dhcp", "dhcp")
              
-        elif "<wan ip> | dhcp" in condition_line:
+        elif "<wan ip>" in condition_line:
+            condition_line = condition_line.replace("| dhcp", "")
             if str(setup_config["Backup Link"]["Backup_IP+mask"]).lower() != "dhcp":
                 ip, mask = setup_config["Backup Link"]["Backup_IP+mask"].split("/")
-                line = condition_line.replace("<wan ip> | dhcp", ip + " " + cidr_to_subnet_mask(int(mask)))
+                line = condition_line.replace("<wan ip>", ip + " " + cidr_to_subnet_mask(int(mask)))
             else:
-                line = condition_line.replace("<wan ip> | dhcp", "dhcp")
+                line = condition_line.replace("<wan ip>", "dhcp")
         
         #gateway handling
         elif "<gw>" in condition_line:
