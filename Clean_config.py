@@ -19,6 +19,45 @@ def delete_line(path, target_string, content, encoding='utf-8'):
     write_file(path, updated_content, encoding=encoding)
     
 
+def delete_content_between_lines(file_path, start_line, end_line):
+    # Ensure start_line and end_line are valid positive integers
+    if not isinstance(start_line, int) or not isinstance(end_line, int) or start_line < 1 or end_line < 1:
+        raise ValueError("Start and end line numbers must be positive integers.")
+
+    # Read the content of the original file
+    content = get_txt_content(file_path)
+
+    # Calculate the indices of the lines to be deleted
+    start_index = start_line - 1
+    end_index = min(end_line, len(content))  # Limit the end_index to the last line
+
+    # Delete the content between the specified lines
+    del content[start_index:end_index]
+    
+    write_file(file_path, content)
+    
+    
+def write_content_at_line(file_path, line_number, content_to_write):
+    # Ensure line_number is a valid positive integer
+    if not isinstance(line_number, int) or line_number < 1:
+        raise ValueError("Line number must be a positive integer.")
+
+    # Read the content of the original file
+    content = get_txt_content(file_path)
+
+    # Calculate the index to insert the new content
+    insert_index = line_number - 1
+
+    # Insert the new content at the specified line number
+    for line in content_to_write:
+        print(line)
+        insert_index += 1
+        content.insert(insert_index, line + f"\n")
+
+    # Write the updated content to a new file
+    write_file(file_path, content)
+    
+
 class CleanConfig:
     
     def __init__(self, path_to_config, setup_config):
@@ -77,6 +116,8 @@ class CleanConfig:
             
             self.file_mid_content_cleanup(start_flag=FilterStrings("BASE").filter_string,
                                             end_flag=FilterStrings("FLOW").filter_string)
+
+            
         else:
             print("[!] Wrong value set by the user!")
         
@@ -110,6 +151,10 @@ class CleanConfig:
         else:
             self.file_mid_content_cleanup(start_flag=FilterStrings("EIGRP_Starting").filter_string,
                                         end_flag=FilterStrings("UP_to_Certificate_Enrollment").filter_string)
+            
+            
+        if setup_config["WAN info"]["Design"].upper() == "FLOW":
+            self.flow_config_cleanup()
             
         
     '''The beginning of the file will be cleaned up from unnecessary content'''
@@ -202,8 +247,60 @@ class CleanConfig:
             write_file(self.path_to_config, content)
         else:
             print("Start or end string not found in the file.")
-
+            
     
+    #sorts flow config
+    #!!!! nebude ani treba path ale globalnu premennú !!!
+    def flow_config_cleanup(self, encoding='utf'):
+        #!!!! nebude ani treba path ale globalnu premennú !!!
+        config = get_txt_content(self.path_to_config)
+        clear_config = []
+        start_flag = False
+        line_counter = 0
+        
+        for line in config:
+            line_counter += 1
+            if "Router 101 (INET)                 | Router 102 (INET2)" in line:
+                start_flag = True
+                start_del_line = line_counter - 1
+            elif "| spanning-tree guard loop          | spanning-tree guard loop         |" in line:
+                start_flag = False
+                clear_config.append(line)
+                end_del_line = line_counter + 3
+        
+            if start_flag == True:
+                clear_config.append(line)
+        
+        
+        not_wanted = ("+-----------------------------------+----------------------------------+", 
+                    "+===================================+==================================+")
+        
+        element_index = 0
+
+        for line in clear_config:
+            for string in not_wanted:
+                if string in line:
+                    clear_config.pop(element_index)
+
+                
+            element_index += 1
+
+        router1 = []
+        router2 = []
+
+        for line in clear_config:
+            last_occurrence_index = line.rfind("|")
+            line = (line[:last_occurrence_index] + line[last_occurrence_index+1:]).replace(line[0], "", 1)
+            element_r1, element_r2 = line.split("|")[0], line.split("|")[1]
+            router1.append(element_r1)
+            router2.append(element_r2)
+
+
+        merged_config = router1 + router2
+        #!!!! nebude ani treba path ale globalnu premennú !!!
+        delete_content_between_lines(self.path_to_config, start_del_line, end_del_line)
+        #!!!! nebude ani treba path ale globalnu premennú !!!
+        write_content_at_line(self.path_to_config, start_del_line, merged_config)    
         
     
 if __name__ == "__main__":

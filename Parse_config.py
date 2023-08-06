@@ -119,7 +119,7 @@ class ParseConfig:
         self.path_to_config = path_to_config
         self.setup_config = setup_config
         config = get_txt_content(self.path_to_config)
-        print(self.setup_config)
+        #print(self.setup_config)
         # print(self.path_to_config)
         final_config = ParseConfig.look_and_replace_strings(config, setup_config)
         write_file(self.path_to_config, final_config)
