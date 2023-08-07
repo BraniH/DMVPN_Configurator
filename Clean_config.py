@@ -345,7 +345,6 @@ class CleanConfig:
         elif self.setup_config["WAN info"]["Design"].upper() == "SMART":
             
             if self.setup_config["Backup Link"]["4G+Cellular"] == True:
-                print("Backup is TRUE!!!!")
                 _, st_start_del_line, st_end_del_line = find_element_stack_in_array(config, 
                                                                                 start_string="interface <WAN Interface 2>", 
                                                                                 end_string="ip route vrf INET2 0.0.0.0 0.0.0.0 <gw>")
@@ -357,8 +356,7 @@ class CleanConfig:
                 write_content_at_line(self.path_to_config, st_start_del_line, cel_selected_config)
             
             
-            if self.setup_config["Main Link"]["4G+Cellular"] == True:  
-                print("Main is TRUE!!!")             
+            if self.setup_config["Main Link"]["4G+Cellular"] == True:            
                 _, st_start_del_line, st_end_del_line = find_element_stack_in_array(config, 
                                                                                 start_string="INET & INET2", 
                                                                                 end_string="ip route vrf INET 0.0.0.0 0.0.0.0 <gw>")
@@ -371,7 +369,6 @@ class CleanConfig:
                 
         else:    
             if self.setup_config["Backup Link"]["4G+Cellular"] == True:
-                print("Backup is TRUE!!")
                 _, st_start_del_line, st_end_del_line = find_element_stack_in_array(config, 
                                                                                 start_string="Router 102 (INET2)", 
                                                                                 end_string="ip route vrf INET2 0.0.0.0 0.0.0.0 <gw>")
