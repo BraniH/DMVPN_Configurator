@@ -71,7 +71,7 @@ def find_element_stack_in_array(config, start_string, end_string):
         elif end_string in element:
             start_flag = False
             selected_config.append(element)
-            end_del_line = line_counter + 3
+            end_del_line = line_counter
         
         if start_flag == True:
             selected_config.append(element)
@@ -84,6 +84,18 @@ def interference_cleanup(string_to_check, original_string, replacement_string):
         string_to_check = string_to_check.replace(original_string, replacement_string)
     
     return string_to_check
+
+
+def list_cleanup(dirty_list, not_wanted):
+    element_index = 0
+    for line in dirty_list:
+        for string in not_wanted:
+            if string in line:
+                dirty_list.pop(element_index)
+
+        element_index += 1
+        
+    return dirty_list
         
                 
     
@@ -182,9 +194,18 @@ class CleanConfig:
             self.file_mid_content_cleanup(start_flag=FilterStrings("EIGRP_Starting").filter_string,
                                         end_flag=FilterStrings("UP_to_Certificate_Enrollment").filter_string)
             
-            
+        #FLOW config cleanup so its easier to filter it later    
         if setup_config["WAN info"]["Design"].upper() == "FLOW":
             self.flow_config_cleanup()
+            
+        #if cellular intrface will be used replace standard int with cellular
+        if setup_config["Main Link"]["4G+Cellular"] == True or setup_config["Backup Link"]["4G+Cellular"] == True:
+            self.if_cellular()
+            
+        #change config in case there is country which uses incountry-hun
+        if setup_config["WAN info"]["Hostname"].upper()[:3] in ("CAN", "SWE", "NOR", "DNK"):
+            self.in_country_hub()
+
             
         
     '''The beginning of the file will be cleaned up from unnecessary content'''
@@ -276,15 +297,8 @@ class CleanConfig:
         
         not_wanted = ("----+----", 
                       "====+====",
-                      "         |          ")
-        
-        element_index = 0
-        for line in selected_config:
-            for string in not_wanted:
-                if string in line:
-                    selected_config.pop(element_index)
-
-            element_index += 1
+                      "         |          ")  
+        selected_config = list_cleanup(dirty_list = selected_config, not_wanted=not_wanted)
 
         router1 = []
         router2 = ["\n"]
@@ -299,8 +313,40 @@ class CleanConfig:
 
         merged_config = router1 + router2
         
-        delete_content_between_lines(self.path_to_config, start_del_line, end_del_line)
-        write_content_at_line(self.path_to_config, start_del_line, merged_config)    
+        delete_content_between_lines(self.path_to_config, start_del_line, end_del_line+3)
+        write_content_at_line(self.path_to_config, start_del_line, merged_config)
+        
+        
+    def if_cellular(self):
+        config = get_txt_content(self.path_to_config)
+        
+        cel_selected_config, ce_start_del_line, ce_end_del_line = find_element_stack_in_array(config, 
+                                                                                    start_string="LTE Configuration", 
+                                                                                    end_string="!! example: *** INET - VERIZON 4G 10Mbps *** (config generator)")
+        
+        delete_content_between_lines(self.path_to_config, ce_start_del_line-1, ce_end_del_line)
+        
+        if self.setup_config["WAN info"]["Design"].upper() == "BASE":
+            st_start_string = "FVRF & Overlay"
+            st_end_string = "ip route vrf INET 0.0.0.0 0.0.0.0 <gw>"
+        elif self.setup_config["WAN info"]["Design"].upper() == "SMART":
+            pass
+        else:
+            pass
+        
+                
+        _, st_start_del_line, st_end_del_line = find_element_stack_in_array(config, 
+                                                                            start_string=st_start_string, 
+                                                                            end_string=st_end_string)
+        
+        cel_selected_config = list_cleanup(cel_selected_config, f"\n")
+        delete_content_between_lines(self.path_to_config, st_start_del_line+6, st_end_del_line)
+        write_content_at_line(self.path_to_config, st_start_del_line+6, cel_selected_config)
+        
+    
+    
+    def in_country_hub(slef):
+        pass
         
     
 if __name__ == "__main__":
