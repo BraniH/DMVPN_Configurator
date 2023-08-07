@@ -7,12 +7,16 @@ def get_txt_content(path, encoding='utf-8'):
     with open(path, 'r', encoding=encoding) as file:
         content = file.readlines()
         
+    file.close()
+        
     return content
 
 
 def write_file(path, content, encoding='utf-8'):
     with open(path, 'w', encoding=encoding) as file:
                 file.writelines(content)
+                
+    file.close()
                 
 
 def delete_line(path, target_string, content, encoding='utf-8'):
@@ -329,21 +333,62 @@ class CleanConfig:
         if self.setup_config["WAN info"]["Design"].upper() == "BASE":
             st_start_string = "FVRF & Overlay"
             st_end_string = "ip route vrf INET 0.0.0.0 0.0.0.0 <gw>"
-        elif self.setup_config["WAN info"]["Design"].upper() == "SMART":
-            pass
-        else:
-            pass
-        
-                
-        _, st_start_del_line, st_end_del_line = find_element_stack_in_array(config, 
+            
+            _, st_start_del_line, st_end_del_line = find_element_stack_in_array(config, 
                                                                             start_string=st_start_string, 
                                                                             end_string=st_end_string)
         
-        cel_selected_config = list_cleanup(cel_selected_config, f"\n")
-        delete_content_between_lines(self.path_to_config, st_start_del_line+6, st_end_del_line)
-        write_content_at_line(self.path_to_config, st_start_del_line+6, cel_selected_config)
         
+            delete_content_between_lines(self.path_to_config, st_start_del_line+6, st_end_del_line)
+            write_content_at_line(self.path_to_config, st_start_del_line+6, cel_selected_config)
+        
+        elif self.setup_config["WAN info"]["Design"].upper() == "SMART":
+            
+            if self.setup_config["Backup Link"]["4G+Cellular"] == True:
+                print("Backup is TRUE!!!!")
+                _, st_start_del_line, st_end_del_line = find_element_stack_in_array(config, 
+                                                                                start_string="interface <WAN Interface 2>", 
+                                                                                end_string="ip route vrf INET2 0.0.0.0 0.0.0.0 <gw>")
+                
+                print(st_start_del_line)
+                print(st_end_del_line)
+                
+                delete_content_between_lines(self.path_to_config, st_start_del_line, st_end_del_line)
+                write_content_at_line(self.path_to_config, st_start_del_line, cel_selected_config)
+            
+            
+            if self.setup_config["Main Link"]["4G+Cellular"] == True:  
+                print("Main is TRUE!!!")             
+                _, st_start_del_line, st_end_del_line = find_element_stack_in_array(config, 
+                                                                                start_string="INET & INET2", 
+                                                                                end_string="ip route vrf INET 0.0.0.0 0.0.0.0 <gw>")
+                
+                print(st_start_del_line)
+                print(st_end_del_line)
+                
+                delete_content_between_lines(self.path_to_config, st_start_del_line+2, st_end_del_line)
+                write_content_at_line(self.path_to_config, st_start_del_line+2, cel_selected_config)
+                
+        else:    
+            if self.setup_config["Backup Link"]["4G+Cellular"] == True:
+                print("Backup is TRUE!!")
+                _, st_start_del_line, st_end_del_line = find_element_stack_in_array(config, 
+                                                                                start_string="Router 102 (INET2)", 
+                                                                                end_string="ip route vrf INET2 0.0.0.0 0.0.0.0 <gw>")
+                
+                delete_content_between_lines(self.path_to_config, st_start_del_line, st_end_del_line)
+                write_content_at_line(self.path_to_config, st_start_del_line, cel_selected_config)
+                
+                
+            if self.setup_config["Main Link"]["4G+Cellular"] == True:               
+                _, st_start_del_line, st_end_del_line = find_element_stack_in_array(config, 
+                                                                                start_string="Router 101 (INET)", 
+                                                                                end_string="ip route vrf INET 0.0.0.0 0.0.0.0 <gw>")
+                
+                delete_content_between_lines(self.path_to_config, st_start_del_line, st_end_del_line)
+                write_content_at_line(self.path_to_config, st_start_del_line, cel_selected_config)
     
+        
     
     def in_country_hub(slef):
         pass
