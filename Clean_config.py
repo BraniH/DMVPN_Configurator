@@ -56,6 +56,36 @@ def write_content_at_line(file_path, line_number, content_to_write):
 
     # Write the updated content to a new file
     write_file(file_path, content)
+
+#finds content between selected strings. Also returns start and end indexes of the provided strings
+def find_element_stack_in_array(config, start_string, end_string):
+    selected_config = []
+    start_flag = False
+    line_counter = 0
+        
+    for element in config:
+        line_counter += 1
+        if start_string in element:
+            start_flag = True
+            start_del_line = line_counter - 1
+        elif end_string in element:
+            start_flag = False
+            selected_config.append(element)
+            end_del_line = line_counter + 3
+        
+        if start_flag == True:
+            selected_config.append(element)
+    
+    return selected_config, start_del_line, end_del_line
+            
+
+def interference_cleanup(string_to_check, original_string, replacement_string):
+    if original_string in string_to_check:
+        string_to_check = string_to_check.replace(original_string, replacement_string)
+    
+    return string_to_check
+        
+                
     
 
 class CleanConfig:
@@ -242,42 +272,25 @@ class CleanConfig:
     #sorts flow config
     def flow_config_cleanup(self, encoding='utf'):
         config = get_txt_content(self.path_to_config)
-        clear_config = []
-        start_flag = False
-        line_counter = 0
-        
-        for line in config:
-            line_counter += 1
-            if "<Public IP> | dhcp" in line:
-                    line = line.replace("<Public IP> | dhcp", "<wan ip>")
-            if "Router 101 (INET)" in line and "Router 102 (INET2)" in line:
-                start_flag = True
-                start_del_line = line_counter - 1
-            elif "| spanning-tree guard loop " in line:
-                start_flag = False
-                clear_config.append(line)
-                end_del_line = line_counter + 3
-        
-            if start_flag == True:
-                clear_config.append(line)
+        selected_config, start_del_line, end_del_line = find_element_stack_in_array(config, start_string="Router 101 (INET)", end_string="| spanning-tree guard loop ")
         
         not_wanted = ("----+----", 
                       "====+====",
                       "         |          ")
         
         element_index = 0
-        for line in clear_config:
+        for line in selected_config:
             for string in not_wanted:
                 if string in line:
-                    clear_config.pop(element_index)
+                    selected_config.pop(element_index)
 
             element_index += 1
 
         router1 = []
         router2 = ["\n"]
 
-        for line in clear_config:
-            print(line)
+        for line in selected_config:
+            line = interference_cleanup(string_to_check=line, original_string="<Public IP> | dhcp", replacement_string="<wan ip>")
             last_occurrence_index = line.rfind("|")
             line = (line[:last_occurrence_index] + line[last_occurrence_index+1:]).replace(line[0], "", 1)
             element_r1, element_r2 = line.split("|")[0], line.split("|")[1].replace("\n","")

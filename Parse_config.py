@@ -67,7 +67,10 @@ class ParseConfig:
              
         elif "<wan ip>" in condition_line:
             condition_line = condition_line.replace("| dhcp", "")
-            if str(setup_config["Backup Link"]["Backup_IP+mask"]).lower() != "dhcp":
+            if str(setup_config["Main Link"]["Main_IP+mask"]).lower() != "dhcp" and inet2_flag == False:
+                ip, mask = setup_config["Main Link"]["Main_IP+mask"].split("/")
+                line = condition_line.replace("<wan ip>", ip + " " + cidr_to_subnet_mask(int(mask)))
+            elif str(setup_config["Backup Link"]["Backup_IP+mask"]).lower() != "dhcp" and inet2_flag == True:
                 ip, mask = setup_config["Backup Link"]["Backup_IP+mask"].split("/")
                 line = condition_line.replace("<wan ip>", ip + " " + cidr_to_subnet_mask(int(mask)))
             else:
