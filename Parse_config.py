@@ -113,18 +113,14 @@ class ParseConfig:
     @staticmethod
     def look_and_replace_strings(content, setup_config):
         final_config = []
-        # for line in content:
-        #     final_config.append(ParseConfig._replacement_rules(line, setup_config, 
-        #                                                        inet2_flag = any("INET2" in configured_line for configured_line in final_config)))
         
         for line in content:
             final_config.append(ParseConfig._replacement_rules(line, setup_config, 
                                                                inet2_flag = any("vrf forwarding INET2" in configured_line for configured_line in final_config),
-                                                               backup_tunnel_flag = any("Tunnel26" in configured_line for configured_line in final_config)))
-            
+                                                               backup_tunnel_flag = any("Tunnel26" in configured_line for configured_line in final_config)))          
         # print(final_config)
         return final_config
-        #return [ParseConfig._replacement_rules(line, setup_config) for line in content]
+
 
 
     def __init__(self, path_to_config, setup_config):
