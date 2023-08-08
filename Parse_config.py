@@ -98,6 +98,9 @@ class ParseConfig:
             tunnel_info = setup_config["Main Link"]["Main_DC_Tunnel_Speed"] if not backup_tunnel_flag else setup_config["Backup Link"]["Backup_DC_Tunnel_Speed"]
             line = condition_line.replace("[2m-50m]", str(tunnel_info) + "M")
         
+        #Cellular handling
+        if "cellular" in condition_line and "0/1/0" in condition_line:
+            line = condition_line.replace("0/1/0", "0/2/0")
         
         return line
     

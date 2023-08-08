@@ -7,8 +7,6 @@ def get_txt_content(path, encoding='utf-8'):
     with open(path, 'r', encoding=encoding) as file:
         content = file.readlines()
         
-    file.close()
-        
     return content
 
 
@@ -16,7 +14,6 @@ def write_file(path, content, encoding='utf-8'):
     with open(path, 'w', encoding=encoding) as file:
                 file.writelines(content)
                 
-    file.close()
                 
 
 def delete_line(path, target_string, content, encoding='utf-8'):
@@ -103,7 +100,7 @@ def list_cleanup(dirty_list, not_wanted):
         
                 
     
-
+#! __INIT__
 class CleanConfig:
     
     def __init__(self, path_to_config, setup_config):
@@ -120,7 +117,7 @@ class CleanConfig:
         if (setup_config["Main Link"]["4G+Cellular"] == False) and (setup_config["Backup Link"]["4G+Cellular"] == False): 
             self.file_ending_cleanup(target_string=FilterStrings("Ending").filter_string)
             
-            # Remove ZBFW config if required
+            #! Remove ZBFW config if required - REENABLE COMMEND FOR ININT!!!!
             if setup_config["WAN info"]["ZBFW"] == False:
                 self.file_ending_cleanup(target_string=FilterStrings("ZBFW").filter_string, delete_target_string=True)
         else:
@@ -161,9 +158,7 @@ class CleanConfig:
         elif setup_config["WAN info"]["Design"].upper() == "FLOW":
             
             self.file_mid_content_cleanup(start_flag=FilterStrings("BASE").filter_string,
-                                            end_flag=FilterStrings("FLOW").filter_string)
-            # self.flow_config_cleanup()
-            
+                                            end_flag=FilterStrings("FLOW").filter_string)       
         else:
             print("[!] Wrong value set by the user!")
         
@@ -206,12 +201,12 @@ class CleanConfig:
         if setup_config["Main Link"]["4G+Cellular"] == True or setup_config["Backup Link"]["4G+Cellular"] == True:
             self.if_cellular()
             
-        #change config in case there is country which uses incountry-hun
+        # #change config in case there is country which uses incountry-hun
         if setup_config["WAN info"]["Hostname"].upper()[:3] in ("CAN", "SWE", "NOR", "DNK"):
             self.in_country_hub()
 
             
-        
+    #! Class methods      
     '''The beginning of the file will be cleaned up from unnecessary content'''
     def file_begining_cleanup(self, encoding='utf-8'):
         
