@@ -97,6 +97,11 @@ class ParseConfig:
         elif "[2m-50m]" in condition_line:
             tunnel_info = setup_config["Main Link"]["Main_DC_Tunnel_Speed"] if not backup_tunnel_flag else setup_config["Backup Link"]["Backup_DC_Tunnel_Speed"]
             line = condition_line.replace("[2m-50m]", str(tunnel_info) + "M")
+            
+        #random things without cathegory
+        elif "lte sim data-profile 1 attach-profile 1" in condition_line:
+            line = condition_line.replace("\n", "") + " slot 0\n"
+        
         
         #Cellular handling
         if "cellular" in condition_line and "0/1/0" in condition_line:
