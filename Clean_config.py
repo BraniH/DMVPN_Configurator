@@ -344,9 +344,6 @@ class CleanConfig:
                                                                                 start_string="interface <WAN Interface 2>", 
                                                                                 end_string="ip route vrf INET2 0.0.0.0 0.0.0.0 <gw>")
                 
-                print(st_start_del_line)
-                print(st_end_del_line)
-                
                 delete_content_between_lines(self.path_to_config, st_start_del_line, st_end_del_line)
                 write_content_at_line(self.path_to_config, st_start_del_line, cel_selected_config)
             
@@ -355,9 +352,6 @@ class CleanConfig:
                 _, st_start_del_line, st_end_del_line = find_element_stack_in_array(config, 
                                                                                 start_string="INET & INET2", 
                                                                                 end_string="ip route vrf INET 0.0.0.0 0.0.0.0 <gw>")
-                
-                print(st_start_del_line)
-                print(st_end_del_line)
                 
                 delete_content_between_lines(self.path_to_config, st_start_del_line+2, st_end_del_line)
                 write_content_at_line(self.path_to_config, st_start_del_line+2, cel_selected_config)

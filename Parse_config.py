@@ -30,7 +30,6 @@ class ParseConfig:
     @staticmethod
     def _replacement_rules(line, setup_config, inet2_flag, backup_tunnel_flag):
         condition_line = line.lower()
-
         #baseline configuration handling
         if "<xxxnr0000aaaa101>" in condition_line or "<hostname>" in condition_line:
             line = condition_line.replace("<xxxnr0000aaaa101>", setup_config["WAN info"]["Hostname"]) \
@@ -53,14 +52,18 @@ class ParseConfig:
                                  .replace("sidxxxx>", f"SID{setup_config['WAN info']['Hostname'][5:9]}")
         
         
-        #wan interface handling + tunnel source   
-        
+        #wan interface handling + tunnel source if <wlan interface no.> is ued   
         elif "cellular" in condition_line and "0/1/0" in condition_line:
             line = condition_line.replace("0/1/0", "0/2/0")
                    
         elif "<wan interface 1>" in condition_line or "<wan interface 2>" in condition_line:
-            pattern = r"<wan interface ([12])>"
-            line = re.sub(pattern, lambda match: "g0/0/1" if match.group(1) == '1' else "g0/0/0", condition_line) 
+            if setup_config["Main Link"]["4G+Cellular"] == True and "<wan interface 1>" in condition_line:
+                line = condition_line.replace("<wan interface 1>", "cellular0/2/0")
+            elif setup_config["Backup Link"]["4G+Cellular"] == True and "<wan interface 2>" in condition_line:
+                line = condition_line.replace("<wan interface 2>", "cellular0/2/0")
+            else:
+                pattern = r"<wan interface ([12])>"
+                line = re.sub(pattern, lambda match: "g0/0/1" if match.group(1) == '1' else "g0/0/0", condition_line) 
              
         elif "<public ip> | dhcp" in condition_line:
             if str(setup_config["Main Link"]["Main_IP+mask"]).lower() != "dhcp":
@@ -102,9 +105,17 @@ class ParseConfig:
             tunnel_info = setup_config["Main Link"]["Main_DC_Tunnel_Speed"] if not backup_tunnel_flag else setup_config["Backup Link"]["Backup_DC_Tunnel_Speed"]
             line = condition_line.replace("[2m-50m]", str(tunnel_info) + "M")
             
+        elif "tunnel source gi0/0/1" in condition_line and setup_config["WAN info"]["Design"].upper() == "FLOW":
+            if backup_tunnel_flag == False and setup_config["Main Link"]["4G+Cellular"] == True:
+                line = condition_line.replace("gi0/0/1", "ce0/2/0")
+            elif backup_tunnel_flag == True and setup_config["Backup Link"]["4G+Cellular"] == True:
+                line = condition_line.replace("gi0/0/1", "ce0/2/0")
+            
+            
         #random things without cathegory
         elif "lte sim data-profile 1 attach-profile 1" in condition_line:
             line = condition_line.replace("\n", "") + " slot 0\n"
+            
         
         
         #Cellular handling
