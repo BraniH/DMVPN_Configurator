@@ -52,10 +52,18 @@ class ParseConfig:
                                  .replace("sidxxxx>", f"SID{setup_config['WAN info']['Hostname'][5:9]}")
         
         
-        #wan interface handling + tunnel source if <wlan interface no.> is ued   
-        elif "cellular" in condition_line and "0/1/0" in condition_line:
+        #wan interface handling + tunnel source if <wlan interface no.> is ued 
+        #!APN does not work correctly
+        elif re.search(f"cellular ?\d\/\d\/\d", condition_line):
             line = condition_line.replace("0/1/0", "0/2/0")
-                   
+            print("condition line: " + condition_line + str(inet2_flag))
+            if "profile create 1 apn.domain" in condition_line and inet2_flag == False:
+                line = line.replace("apn.domain", setup_config["Main Link"]["APN"])
+            elif "profile create 1 apn.domain" in condition_line and inet2_flag == True:
+                line = line.replace("apn.domain", setup_config["Backup Link"]["APN"])
+            print(line)
+                
+                      
         elif "<wan interface 1>" in condition_line or "<wan interface 2>" in condition_line:
             if setup_config["Main Link"]["4G+Cellular"] == True and "<wan interface 1>" in condition_line:
                 line = condition_line.replace("<wan interface 1>", "cellular0/2/0")
@@ -118,9 +126,13 @@ class ParseConfig:
             
         
         
-        #Cellular handling
         # if "cellular" in condition_line and "0/1/0" in condition_line:
         #     line = condition_line.replace("0/1/0", "0/2/0")
+            
+        #     if "profile create 1 apn.domain" in condition_line and inet2_flag == False:
+        #         line = condition_line.replace("apn.domain", setup_config["Main Link"]["APN"])
+        #     elif "profile create 1 apn.domain" in condition_line and inet2_flag == True:
+        #         line = condition_line.replace("apn.domain", setup_config["Backup Link"]["APN"])
         
         return line
     
