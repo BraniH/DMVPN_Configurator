@@ -53,7 +53,11 @@ class ParseConfig:
                                  .replace("sidxxxx>", f"SID{setup_config['WAN info']['Hostname'][5:9]}")
         
         
-        #wan interface handling               
+        #wan interface handling + tunnel source   
+        
+        elif "cellular" in condition_line and "0/1/0" in condition_line:
+            line = condition_line.replace("0/1/0", "0/2/0")
+                   
         elif "<wan interface 1>" in condition_line or "<wan interface 2>" in condition_line:
             pattern = r"<wan interface ([12])>"
             line = re.sub(pattern, lambda match: "g0/0/1" if match.group(1) == '1' else "g0/0/0", condition_line) 
@@ -104,11 +108,10 @@ class ParseConfig:
         
         
         #Cellular handling
-        if "cellular" in condition_line and "0/1/0" in condition_line:
-            line = condition_line.replace("0/1/0", "0/2/0")
+        # if "cellular" in condition_line and "0/1/0" in condition_line:
+        #     line = condition_line.replace("0/1/0", "0/2/0")
         
         return line
-    
     
     @staticmethod
     def look_and_replace_strings(content, setup_config):

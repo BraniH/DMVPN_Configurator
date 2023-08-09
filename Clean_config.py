@@ -117,7 +117,7 @@ class CleanConfig:
         if (setup_config["Main Link"]["4G+Cellular"] == False) and (setup_config["Backup Link"]["4G+Cellular"] == False): 
             self.file_ending_cleanup(target_string=FilterStrings("Ending").filter_string)
             
-            # Remove ZBFW config if required
+            # Remove ZBFW config if required 
             if setup_config["WAN info"]["ZBFW"] == False:
                 self.file_ending_cleanup(target_string=FilterStrings("ZBFW").filter_string, delete_target_string=True)
         else:
