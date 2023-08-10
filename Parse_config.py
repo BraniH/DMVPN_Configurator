@@ -56,10 +56,9 @@ class ParseConfig:
         #!APN does not work correctly
         elif re.search(f"cellular ?\d\/\d\/\d", condition_line):
             line = condition_line.replace("0/1/0", "0/2/0")
-            print("condition line: " + condition_line + str(inet2_flag))
-            if "profile create 1 apn.domain" in condition_line and inet2_flag == False:
+            if "profile create 1 apn.domain" in condition_line and inet2_flag == False and setup_config["Main Link"]["4G+Cellular"] == True:
                 line = line.replace("apn.domain", setup_config["Main Link"]["APN"])
-            elif "profile create 1 apn.domain" in condition_line and inet2_flag == True:
+            elif "profile create 1 apn.domain" in condition_line and (inet2_flag == True or setup_config["Backup Link"]["4G+Cellular"] == True):
                 line = line.replace("apn.domain", setup_config["Backup Link"]["APN"])
             print(line)
                 
