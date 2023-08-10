@@ -28,7 +28,7 @@ def cidr_to_subnet_mask(cidr):
 
 class ParseConfig:
     @staticmethod
-    def _replacement_rules(line, setup_config, inet2_flag, backup_tunnel_flag):
+    def _replacement_rules(line, setup_config, inet2_flag, backup_tunnel_flag, cellular_flag, final_config):
         condition_line = line.lower()
         #baseline configuration handling
         if "<xxxnr0000aaaa101>" in condition_line or "<hostname>" in condition_line:
@@ -54,13 +54,26 @@ class ParseConfig:
         
         #wan interface handling + tunnel source if <wlan interface no.> is ued 
         #!APN does not work correctly
-        elif re.search(f"cellular ?\d\/\d\/\d", condition_line):
+        elif re.search(f"cellular ?\d\/\d\/\d", condition_line) or ("vrf forwarding inet2" in condition_line and cellular_flag == True):
+            #interface name change
             line = condition_line.replace("0/1/0", "0/2/0")
+
+            #INET for cellular interface
+            if "inet2" in condition_line:
+                for configured_line in final_config:
+                    if "ip route vrf INET 0.0.0.0 0.0.0.0" not in configured_line:
+                        line = line.replace("inet2", "INET")
+            
+            #!APN configuration does not work!
             if "profile create 1 apn.domain" in condition_line and inet2_flag == False and setup_config["Main Link"]["4G+Cellular"] == True:
                 line = line.replace("apn.domain", setup_config["Main Link"]["APN"])
             elif "profile create 1 apn.domain" in condition_line and (inet2_flag == True or setup_config["Backup Link"]["4G+Cellular"] == True):
                 line = line.replace("apn.domain", setup_config["Backup Link"]["APN"])
-            print(line)
+            
+            
+                               
+            # print(line)
+
                 
                       
         elif "<wan interface 1>" in condition_line or "<wan interface 2>" in condition_line:
@@ -140,9 +153,12 @@ class ParseConfig:
         final_config = []
         
         for line in content:
-            final_config.append(ParseConfig._replacement_rules(line, setup_config, 
+            final_config.append(ParseConfig._replacement_rules(line=line, setup_config=setup_config, final_config=final_config,
                                                                inet2_flag = any("vrf forwarding INET2" in configured_line for configured_line in final_config),
-                                                               backup_tunnel_flag = any("Tunnel26" in configured_line for configured_line in final_config)))          
+                                                               backup_tunnel_flag = any("Tunnel26" in configured_line for configured_line in final_config),
+                                                               cellular_flag = any("LTE Configuration" in configured_line for configured_line in final_config) and 
+                                                               all("!! example: *** INET - VERIZON 4G 10Mbps *** (config generator)" not in configured_line for configured_line in final_config),
+                                                               ))          
         # print(final_config)
         return final_config
 

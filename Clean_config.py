@@ -297,6 +297,7 @@ class CleanConfig:
         not_wanted = ("----+----", 
                       "====+====",
                       "         |          ")  
+        
         selected_config = list_cleanup(dirty_list = selected_config, not_wanted=not_wanted)
 
         router1 = []
