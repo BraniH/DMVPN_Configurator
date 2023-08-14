@@ -46,6 +46,13 @@ def cellular_configuration(final_config):
     forwarding_flag = False
     inet_flag = False
     for line in final_config:
+        
+        #change to standard cellular interface
+        if re.search(f"cellular ?\d\/\d\/\d", line.lower()): 
+            #interface name change
+            line = line.replace("0/1/0", "0/2/0")
+        
+        #set correct INETs
         if  re.search(r'vrf forwarding inet(?!2)', line.lower()): 
             forwarding_flag = True
             line = line.replace("inet", "INET")
@@ -107,29 +114,8 @@ class ParseConfig:
             line = condition_line.replace("<country", setup_config["WAN info"]["Hostname"][:3]) \
                                  .replace("city", setup_config["Location info"]["City"]) \
                                  .replace("sidxxxx>", f"SID{setup_config['WAN info']['Hostname'][5:9]}")
+            
         
-        
-        #wan interface handling + tunnel source if <wlan interface no.> is ued 
-        
-        #!APN does not work correctly
-        elif re.search(f"cellular ?\d\/\d\/\d", condition_line) or ("vrf forwarding inet2" in condition_line and cellular_flag == True):
-            
-            #interface name change
-            line = condition_line.replace("0/1/0", "0/2/0")
-            
-
-            
-            #!APN configuration does not work!
-            # if "profile create 1 apn.domain" in condition_line and inet2_flag == False and setup_config["Main Link"]["4G+Cellular"] == True:
-            #     line = line.replace("apn.domain", setup_config["Main Link"]["APN"])
-            # elif "profile create 1 apn.domain" in condition_line and (inet2_flag == True or setup_config["Backup Link"]["4G+Cellular"] == True):
-            #     line = line.replace("apn.domain", setup_config["Backup Link"]["APN"])
-            
-            
-                               
-            # print(line)
-
-                
                       
         elif "<wan interface 1>" in condition_line or "<wan interface 2>" in condition_line:
             if setup_config["Main Link"]["4G+Cellular"] == True and "<wan interface 1>" in condition_line:
@@ -207,7 +193,6 @@ class ParseConfig:
             
         final_config = cellular_configuration(final_config)     
 
-        #print(final_config)
         return final_config
 
 
