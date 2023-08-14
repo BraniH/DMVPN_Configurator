@@ -25,11 +25,68 @@ def cidr_to_subnet_mask(cidr):
     
     return subnet_mask_decimals
 
+def cellular_flag_decider(config):
+    start_flag = 0
+    end_flag = 0
+    for line in config:
+        if "LTE Configuration" in line:
+            start_flag += 1
+        elif "!! example: *** INET - VERIZON 4G 10Mbps *** (config generator)" in line:
+            end_flag +=1
+            
+    if start_flag > end_flag:
+        return True
+    else:
+        return False
+    
+    
+def cellular_configuration(final_config):
+    cellular_config = []
+
+    forwarding_flag = False
+    inet_flag = False
+    for line in final_config:
+        if  re.search(r'vrf forwarding inet(?!2)', line.lower()): 
+            forwarding_flag = True
+            line = line.replace("inet", "INET")
+            cellular_config.append(line)
+            
+        elif "ip address dhcp" in line.lower() or re.search(r'ip route vrf inet(?!2)', line.lower()):
+            if forwarding_flag == True:
+                inet_flag = True
+            
+            line = line.replace("inet", "INET")
+            cellular_config.append(line)
+            
+        elif "vrf forwarding inet2" in line.lower() or "ip route vrf inet2 0.0.0.0 0.0.0.0" in line.lower():
+            if ("vrf forwarding inet2" in line.lower() or "ip route vrf inet2 0.0.0.0 0.0.0.0" in line.lower()) and inet_flag == False:
+                if forwarding_flag == True:
+                    inet_flag = True
+                
+                forwarding_flag = True
+                
+                line = line.replace("INET2", "INET")
+                line = line.replace("inet2", "INET")
+                cellular_config.append(line)
+                
+            else:
+                line = line.replace("inet2", "INET2")
+                cellular_config.append(line)
+            
+        else:
+            line = line.replace("inet", "INET")
+            cellular_config.append(line)
+     
+    return cellular_config       
+        
+
 
 class ParseConfig:
     @staticmethod
-    def _replacement_rules(line, setup_config, inet2_flag, backup_tunnel_flag, cellular_flag, final_config):
+    def _replacement_rules(line, setup_config, inet2_flag, backup_tunnel_flag, final_config):
         condition_line = line.lower()
+        cellular_flag = cellular_flag_decider(final_config)
+        
         #baseline configuration handling
         if "<xxxnr0000aaaa101>" in condition_line or "<hostname>" in condition_line:
             line = condition_line.replace("<xxxnr0000aaaa101>", setup_config["WAN info"]["Hostname"]) \
@@ -53,22 +110,20 @@ class ParseConfig:
         
         
         #wan interface handling + tunnel source if <wlan interface no.> is ued 
+        
         #!APN does not work correctly
         elif re.search(f"cellular ?\d\/\d\/\d", condition_line) or ("vrf forwarding inet2" in condition_line and cellular_flag == True):
+            
             #interface name change
             line = condition_line.replace("0/1/0", "0/2/0")
+            
 
-            #INET for cellular interface
-            if "inet2" in condition_line:
-                for configured_line in final_config:
-                    if "ip route vrf INET 0.0.0.0 0.0.0.0" not in configured_line:
-                        line = line.replace("inet2", "INET")
             
             #!APN configuration does not work!
-            if "profile create 1 apn.domain" in condition_line and inet2_flag == False and setup_config["Main Link"]["4G+Cellular"] == True:
-                line = line.replace("apn.domain", setup_config["Main Link"]["APN"])
-            elif "profile create 1 apn.domain" in condition_line and (inet2_flag == True or setup_config["Backup Link"]["4G+Cellular"] == True):
-                line = line.replace("apn.domain", setup_config["Backup Link"]["APN"])
+            # if "profile create 1 apn.domain" in condition_line and inet2_flag == False and setup_config["Main Link"]["4G+Cellular"] == True:
+            #     line = line.replace("apn.domain", setup_config["Main Link"]["APN"])
+            # elif "profile create 1 apn.domain" in condition_line and (inet2_flag == True or setup_config["Backup Link"]["4G+Cellular"] == True):
+            #     line = line.replace("apn.domain", setup_config["Backup Link"]["APN"])
             
             
                                
@@ -135,31 +190,24 @@ class ParseConfig:
         #random things without cathegory
         elif "lte sim data-profile 1 attach-profile 1" in condition_line:
             line = condition_line.replace("\n", "") + " slot 0\n"
-            
-        
-        
-        # if "cellular" in condition_line and "0/1/0" in condition_line:
-        #     line = condition_line.replace("0/1/0", "0/2/0")
-            
-        #     if "profile create 1 apn.domain" in condition_line and inet2_flag == False:
-        #         line = condition_line.replace("apn.domain", setup_config["Main Link"]["APN"])
-        #     elif "profile create 1 apn.domain" in condition_line and inet2_flag == True:
-        #         line = condition_line.replace("apn.domain", setup_config["Backup Link"]["APN"])
+               
         
         return line
     
     @staticmethod
     def look_and_replace_strings(content, setup_config):
         final_config = []
+        cellular_flag = False
         
         for line in content:
             final_config.append(ParseConfig._replacement_rules(line=line, setup_config=setup_config, final_config=final_config,
                                                                inet2_flag = any("vrf forwarding INET2" in configured_line for configured_line in final_config),
-                                                               backup_tunnel_flag = any("Tunnel26" in configured_line for configured_line in final_config),
-                                                               cellular_flag = any("LTE Configuration" in configured_line for configured_line in final_config) and 
-                                                               all("!! example: *** INET - VERIZON 4G 10Mbps *** (config generator)" not in configured_line for configured_line in final_config),
-                                                               ))          
-        # print(final_config)
+                                                               backup_tunnel_flag = any("Tunnel26" in configured_line for configured_line in final_config)))
+            
+            
+        final_config = cellular_configuration(final_config)     
+
+        #print(final_config)
         return final_config
 
 
