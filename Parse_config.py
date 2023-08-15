@@ -40,12 +40,24 @@ def cellular_flag_decider(config):
         return False
     
     
-def cellular_configuration(final_config):
+def cellular_configuration(final_config, setup_config):
     cellular_config = []
-
     forwarding_flag = False
     inet_flag = False
+    apn_used = 0
+    
     for line in final_config:
+        #APN
+        if "APN.domain" in line:
+            apns = [setup_config['Main Link']['APN'], setup_config['Backup Link']['APN']]
+            if setup_config['Main Link']['4G+Cellular'] == True and setup_config['Backup Link']['4G+Cellular'] == True:
+                line = line.replace("APN.domain", apns[apn_used])
+                apn_used += 1
+            elif setup_config['Main Link']['4G+Cellular'] == False and setup_config['Backup Link']['4G+Cellular'] == True:
+                line = line.replace("APN.domain", apns[1])
+            else:
+                line = line.replace("APN.domain", apns[0])
+                
         
         #change to standard cellular interface
         if re.search(f"cellular ?\d\/\d\/\d", line.lower()): 
@@ -83,6 +95,7 @@ def cellular_configuration(final_config):
         else:
             line = line.replace("inet", "INET")
             cellular_config.append(line)
+               
      
     return cellular_config       
         
@@ -191,7 +204,7 @@ class ParseConfig:
                                                                backup_tunnel_flag = any("Tunnel26" in configured_line for configured_line in final_config)))
             
             
-        final_config = cellular_configuration(final_config)     
+        final_config = cellular_configuration(final_config, setup_config=setup_config)     
 
         return final_config
 
