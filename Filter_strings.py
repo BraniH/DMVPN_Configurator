@@ -34,6 +34,12 @@ class FilterStrings:
             self.filter_string = self.smart_branch_string()
         elif filter_string == "FLOW":
             self.filter_string = self.flow_branch_string()
+        elif filter_string == "IN-Country-remove":
+            self.filter_string = self.in_country_remove_lines()
+        elif filter_string == "nhrp_nhrs_27":
+            self.filter_string = self.nhrp_nhrs_27()
+        elif filter_string == "nhrp_nhrs_28":
+            self.filter_string = self.nhrp_nhrs_28()
         
  
     @staticmethod
@@ -152,6 +158,46 @@ class FilterStrings:
                 INET & INET2'''
         
         return flag
+    
+    
+    @staticmethod
+    def in_country_remove_lines():
+        flag = '''ip nhrp nhs 172.25.0.1 nbma 62.134.201.17 multicast
+ip nhrp nhs 172.25.0.2 nbma 62.134.201.62 multicast
+ip nhrp nhs 172.25.0.3 nbma 178.237.44.105 multicast
+ip nhrp nhs 172.25.0.4 nbma 178.237.44.109 multicast
+ip nhrp nhs 172.26.0.1 nbma 62.134.201.18 multicast
+ip nhrp nhs 172.26.0.2 nbma 62.134.201.63 multicast
+ip nhrp nhs 172.26.0.3 nbma 178.237.44.106 multicast
+ip nhrp nhs 172.26.0.4 nbma 178.237.44.110 multicast
+nhrp map group 2M service-policy output 2M
+nhrp map group 4M service-policy output 4M
+nhrp map group 6M service-policy output 6M
+nhrp map group 8M service-policy output 8M
+nhrp map group 10M service-policy output 10M
+nhrp map group 20M service-policy output 20M
+nhrp map group 30M service-policy output 30M
+nhrp map group 40M service-policy output 40M
+nhrp map group 50M service-policy output 50M
+nhrp map group 75M service-policy output 75M
+nhrp map group 100M service-policy output 100M
+nhrp group [2M-50M]'''
+        
+        return flag
+    
+    
+    @staticmethod
+    def nhrp_nhrs_27():
+        flag = "ip nhrp nhs 172.27.0.1 nbma <public IP of in-country Hub> multicast"
+        
+        return flag
+    
+    @staticmethod
+    def nhrp_nhrs_28():
+        flag = "ip nhrp nhs 172.28.0.1 nbma <public IP of in-country Hub> multicast"
+        
+        return flag
+    
     
     
 if __name__ == "__main__":

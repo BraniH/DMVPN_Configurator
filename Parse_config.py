@@ -63,6 +63,9 @@ def cellular_configuration(final_config, setup_config):
         if re.search(f"cellular ?\d\/\d\/\d", line.lower()): 
             #interface name change
             line = line.replace("0/1/0", "0/2/0")
+            
+        if "lte sim data-profile 1 attach-profile 1" in line.lower():
+            line = line.replace("\n", "") + " slot 0\n"
         
         #set correct INETs
         if  re.search(r'vrf forwarding inet(?!2)', line.lower()): 
@@ -103,9 +106,8 @@ def cellular_configuration(final_config, setup_config):
 
 class ParseConfig:
     @staticmethod
-    def _replacement_rules(line, setup_config, inet2_flag, backup_tunnel_flag, final_config):
+    def _replacement_rules(line, setup_config, inet2_flag, backup_tunnel_flag):
         condition_line = line.lower()
-        cellular_flag = cellular_flag_decider(final_config)
         
         #baseline configuration handling
         if "<xxxnr0000aaaa101>" in condition_line or "<hostname>" in condition_line:
@@ -119,8 +121,12 @@ class ParseConfig:
         elif "[upload bandwidth fo internet link bps]" in condition_line:
             main_speed = setup_config["Main Link"]["Main_port_speed"]
             backup_speed = setup_config["Backup Link"]["Backup_port_speed"]
-            speed = str(main_speed) if int(main_speed) >= int(backup_speed) else str(backup_speed)
-            line = condition_line.replace("[upload bandwidth fo internet link bps]", speed + "000000").replace("\n", "")
+            line = condition_line.replace("[upload bandwidth fo internet link bps]", str(main_speed) + "000000").replace("\n", "")
+            
+            #smart backup service policy if needed
+            if setup_config["WAN info"]["Design"].upper() == "SMART" and main_speed != backup_speed:
+                print("Am I here?")
+                line = f'{line}\npolicy-map outside-if2\nclass class-default\nshape average {str(backup_speed)}000000'
         
         #final configuration  
         elif "<country, city, sidxxxx>" in condition_line:
@@ -185,11 +191,6 @@ class ParseConfig:
             elif backup_tunnel_flag == True and setup_config["Backup Link"]["4G+Cellular"] == True:
                 line = condition_line.replace("gi0/0/1", "ce0/2/0")
             
-            
-        #random things without cathegory
-        elif "lte sim data-profile 1 attach-profile 1" in condition_line:
-            line = condition_line.replace("\n", "") + " slot 0\n"
-               
         
         return line
     
@@ -199,7 +200,7 @@ class ParseConfig:
         cellular_flag = False
         
         for line in content:
-            final_config.append(ParseConfig._replacement_rules(line=line, setup_config=setup_config, final_config=final_config,
+            final_config.append(ParseConfig._replacement_rules(line=line, setup_config=setup_config,
                                                                inet2_flag = any("vrf forwarding INET2" in configured_line for configured_line in final_config),
                                                                backup_tunnel_flag = any("Tunnel26" in configured_line for configured_line in final_config)))
             
