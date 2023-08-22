@@ -421,34 +421,30 @@ class CleanConfig:
                     config[counter] = FilterStrings("nhrp_nhrs_28").filter_string.replace(public_ip_string, "204.191.61.179") + "\n"
                 else:
                     config[counter] = FilterStrings("nhrp_nhrs_28").filter_string.replace(public_ip_string, "88.80.166.229") + "\n"
-                    
-                    
-            elif "ip nhrp network-id 27" in config[counter-3]:
+                        
+            elif "network-id 27" in config[counter-3]:
                 public_ip_string = "<public IP of in-country Hub>" 
                 if self.setup_config["WAN info"]["Hostname"].upper()[:3] == "CAN":
                     config[counter] = FilterStrings("nhrp_nhrs_27").filter_string.replace(public_ip_string, "208.181.190.250").replace(".0.1", ".0.2") + "\n"
                 else:
                     config[counter] = FilterStrings("nhrp_nhrs_27").filter_string.replace(public_ip_string, "88.80.166.233").replace(".0.1", ".0.2") + "\n"
                     
-            elif "ip nhrp network-id 28" in config[counter-3]:
+            elif "network-id 28" in config[counter-3]:
                 public_ip_string = "<public IP of in-country Hub>" 
                 if self.setup_config["WAN info"]["Hostname"].upper()[:3] == "CAN":
                     config[counter] = FilterStrings("nhrp_nhrs_28").filter_string.replace(public_ip_string, "208.181.190.251").replace(".0.1", ".0.2") + "\n"
                 else:
                     config[counter] = FilterStrings("nhrp_nhrs_28").filter_string.replace(public_ip_string, "88.80.166.234").replace(".0.1", ".0.2") + "\n"
-                    
-                    
+                       
             counter += 1
         
         write_file(self.path_to_config, config, encoding='utf-8')
-        
-
-    def update_config_entry(self, config, counter, network_id, nhrp_nhrs_id, public_ip_can, public_ip_other):
+    # function to shorten the code with "network-id 28"    
+    def update_config_entry(self, prevous_config_element):
         public_ip_string = "<public IP of in-country Hub>"
-        if self.setup_config["WAN info"]["Hostname"].upper()[:3] == "CAN":
-            config[counter] = FilterStrings(f"nhrp_nhrs_{nhrp_nhrs_id}").filter_string.replace(public_ip_string, public_ip_can) + "\n"
-        else:
-            config[counter] = FilterStrings(f"nhrp_nhrs_{nhrp_nhrs_id}").filter_string.replace(public_ip_string, public_ip_other) + "\n"
+        if any(re.search(r'network-id 2[89]', prevous_config_element)):
+            pass
+        
     
         
 if __name__ == "__main__":
