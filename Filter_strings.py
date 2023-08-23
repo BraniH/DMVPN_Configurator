@@ -170,6 +170,22 @@ ip nhrp nhs 172.26.0.1 nbma 62.134.201.18 multicast
 ip nhrp nhs 172.26.0.2 nbma 62.134.201.63 multicast
 ip nhrp nhs 172.26.0.3 nbma 178.237.44.106 multicast
 ip nhrp nhs 172.26.0.4 nbma 178.237.44.110 multicast
+ip nhrp nhs 172.26.0.1 nbma 199.87.118.204 multicast
+ip nhrp nhs 172.26.0.2 nbma 199.87.118.145 multicast
+ip nhrp nhs 172.26.0.3 nbma 216.200.150.37 multicast
+ip nhrp nhs 172.26.0.4 nbma 216.200.150.41 multicast
+ip nhrp nhs 172.26.0.1 nbma 203.117.50.69 multicast
+ip nhrp nhs 172.26.0.2 nbma 203.208.237.105 multicast
+ip nhrp nhs 172.26.0.3 nbma 118.67.64.5 multicast
+ip nhrp nhs 172.26.0.4 nbma 118.67.64.9 multicast
+ip nhrp nhs 172.25.0.1 nbma 203.117.50.68 multicast
+ip nhrp nhs 172.25.0.2 nbma 203.208.237.104 multicast
+ip nhrp nhs 172.25.0.3 nbma 118.67.64.4 multicast
+ip nhrp nhs 172.25.0.4 nbma 118.67.64.8 multicast
+ip nhrp nhs 172.25.0.1 nbma 199.87.118.201 multicast
+ip nhrp nhs 172.25.0.2 nbma 199.87.118.144 multicast
+ip nhrp nhs 172.25.0.3 nbma 216.200.150.36 multicast
+ip nhrp nhs 172.25.0.4 nbma 216.200.150.40 multicast
 nhrp map group 2M service-policy output 2M
 nhrp map group 4M service-policy output 4M
 nhrp map group 6M service-policy output 6M
@@ -188,13 +204,13 @@ nhrp group [2M-50M]'''
     
     @staticmethod
     def nhrp_nhrs_27():
-        flag = "ip nhrp nhs 172.27.0.1 nbma <public IP of in-country Hub> multicast"
+        flag = "ip nhrp nhs 172.27.0.xx nbma <public IP of in-country Hub> multicast"
         
         return flag
     
     @staticmethod
     def nhrp_nhrs_28():
-        flag = "ip nhrp nhs 172.28.0.1 nbma <public IP of in-country Hub> multicast"
+        flag = "ip nhrp nhs 172.28.0.xx nbma <public IP of in-country Hub> multicast"
         
         return flag
     

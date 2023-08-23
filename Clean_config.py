@@ -399,6 +399,7 @@ class CleanConfig:
             elif "ip nhrp network-id " in line:
                 line = line.replace("25", "27")
                 line = line.replace("26", "28")
+                line += self.set_in_country_ips(line)  
                 config[counter] = line
             elif "Tunnel2" in line:
                 line = line.replace("25", "27")
@@ -408,42 +409,40 @@ class CleanConfig:
                 line = line.replace(".25.", ".27.")
                 line = line.replace(".26.", ".28.")
                 config[counter] = line
-            elif "network-id 27" in config[counter-1]:
-                public_ip_string = "<public IP of in-country Hub>"
-                if self.setup_config["WAN info"]["Hostname"].upper()[:3] == "CAN":
-                    config[counter] = FilterStrings("nhrp_nhrs_27").filter_string.replace(public_ip_string, "204.191.61.178") + "\n"
-                else:
-                    config[counter] = FilterStrings("nhrp_nhrs_27").filter_string.replace(public_ip_string, "88.80.166.228") + "\n"
-                
-            elif "network-id 28" in config[counter-1]:
-                public_ip_string = "<public IP of in-country Hub>" 
-                if self.setup_config["WAN info"]["Hostname"].upper()[:3] == "CAN":
-                    config[counter] = FilterStrings("nhrp_nhrs_28").filter_string.replace(public_ip_string, "204.191.61.179") + "\n"
-                else:
-                    config[counter] = FilterStrings("nhrp_nhrs_28").filter_string.replace(public_ip_string, "88.80.166.229") + "\n"
-                        
-            elif "network-id 27" in config[counter-3]:
-                public_ip_string = "<public IP of in-country Hub>" 
-                if self.setup_config["WAN info"]["Hostname"].upper()[:3] == "CAN":
-                    config[counter] = FilterStrings("nhrp_nhrs_27").filter_string.replace(public_ip_string, "208.181.190.250").replace(".0.1", ".0.2") + "\n"
-                else:
-                    config[counter] = FilterStrings("nhrp_nhrs_27").filter_string.replace(public_ip_string, "88.80.166.233").replace(".0.1", ".0.2") + "\n"
-                    
-            elif "network-id 28" in config[counter-3]:
-                public_ip_string = "<public IP of in-country Hub>" 
-                if self.setup_config["WAN info"]["Hostname"].upper()[:3] == "CAN":
-                    config[counter] = FilterStrings("nhrp_nhrs_28").filter_string.replace(public_ip_string, "208.181.190.251").replace(".0.1", ".0.2") + "\n"
-                else:
-                    config[counter] = FilterStrings("nhrp_nhrs_28").filter_string.replace(public_ip_string, "88.80.166.234").replace(".0.1", ".0.2") + "\n"
+
                        
             counter += 1
         
         write_file(self.path_to_config, config, encoding='utf-8')
-    # function to shorten the code with "network-id 28"    
-    def update_config_entry(self, prevous_config_element):
+    
+    def set_in_country_ips(self, line):
         public_ip_string = "<public IP of in-country Hub>"
-        if any(re.search(r'network-id 2[89]', prevous_config_element)):
-            pass
+        hubs = {
+            "CAN":{
+                "Main":("204.191.61.178", "208.181.190.250"),
+                "Backup":("204.191.61.179", "208.181.190.251")},
+            "NEU": {
+                "Main":("88.80.166.228", "88.80.166.233"),
+                "Backup":("88.80.166.229", "88.80.166.234")}   
+                }
+                
+        if re.search(r'network-id 2[78]', line):
+            country = self.setup_config["WAN info"]["Hostname"].upper()[:3]
+            hub_strings = "\n"
+                    
+            hub_char = "Main" if "27" in line else "Backup"
+            nhrp_string = "nhrp_nhrs_27" if "27" in line else "nhrp_nhrs_28"
+
+            try:
+                hub_ips = hubs[country][hub_char]
+            except KeyError as e:
+                hub_ips = hubs["NEU"][hub_char]
+                        
+            hub_strings = "\n"
+            for ip_count in range(len(hub_ips)):
+                hub_strings += FilterStrings(nhrp_string).filter_string.replace(public_ip_string, hub_ips[ip_count]).replace("xx", str(ip_count+1)) + "\n"
+                
+            return hub_strings
         
     
         
