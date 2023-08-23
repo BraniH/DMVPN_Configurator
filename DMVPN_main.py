@@ -3,6 +3,7 @@ import openpyxl
 import pypandoc
 from Clean_config import CleanConfig
 from Parse_config import ParseConfig
+from DMVPN_config_format import ConfigFormat
 
 
 def get_cells(sheet):
@@ -96,7 +97,8 @@ if __name__ == "__main__":
     ParseConfig(os.getcwd() + standard_config.replace("docx", "txt"), setup_config)
     
 
-
+    '''Formats config '''
+    ConfigFormat(os.getcwd() + standard_config.replace("docx", "txt"))
 
 
 

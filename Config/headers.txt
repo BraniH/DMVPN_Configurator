@@ -1,0 +1,57 @@
+Branch EMEA
+Branch NAM
+Branch APAC
+Staging Process
+Preparation
+Baseline Configuration
+!!! //FVRF Definition
+!!! //Clock Settings
+!!!//Trustpoints
+!!! //Crypto
+!!! //QoS
+!!! //Security
+!!! //NTP
+!!! //Routing
+!!! //Netflow
+FVRF & Overlay
+Base
+INET
+INET Backup Options (deprecated)
+Smart
+Flow
+INET & INET2
+Router 101 (INET)
+Router 102 (INET2)
+L3 SWITCH 01
+L3 SWITCH 02
+LAN interface configuration
+No switch in place
+L3 switch in place
+Only L2 switch in place
+Cisco ISR4k
+Cisco ISR1k
+EIGRP Summary
+EIGRP to Branch
+Converged router
+In-Country Hub
+Certificate Enrollment
+!!! //LAN Interface
+Finalization
+Zone Base Firewall (ZBFW)
+Zone Base Firewall – Baseline configuration
+Zone Base Firewall – SVI Interfaces - Configuration
+Zone Base Firewall – Sub-interfaces - Configuration
+Zone Base Firewall – YARD management implementation (on demand)
+Integrated Wireless Access-point
+Migration from MPLS
+Appendix
+LTE Configuration
+Manual Certificate Enrollment
+Renew Certificate
+Create RSA Keypair
+Create Trustpoints
+Authenticate Trustpoints
+Enroll the Certificate
+Import the Certificate
+IP Design
+MS PKI
