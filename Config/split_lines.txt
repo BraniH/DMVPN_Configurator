@@ -1,0 +1,100 @@
+logging buffered 131072 6
+username lcladm priv 15 sec 4lcladm_XS
+no service password-recovery
+vrf definition INET
+vrf definition INET2
+no ip domain lookup
+interface Loopback0
+crypto pki trustpoint DMVPN
+crypto pki trustpoint ROOT
+crypto ikev2 dpd 10 5 periodic
+crypto ikev2 proposal DMVPN-default
+crypto ipsec security-association replay window-size 1024
+class-map match-all EF
+ip ssh dscp 48
+no ip http server
+crypto isakmp aggressive-mode disable
+ip access-list extended ACL-DMVPN
+ntp server 10.75.32.214 prefer source loopback0
+router eigrp Overlay
+redistribute static metric 100000 10 255 1 1500
+line con 0
+interface Tunnel25
+vrf definition INET-BACKUP
+ip sla 1
+track 1 ip sla 1 reachability
+event manager applet MAIN->BACKUP
+interface Tunnel26
+if-state nhrp
+interface gi0/0/1
+route-map RM_NO_102_ROUTES deny 10
+router eigrp 99
+interface <Gi0/0/0 or VlanX>
+interface Vlan99
+interface <Vlan XX>
+vlan 99
+interface < to Router 101 >
+interface < to Router 102 >
+interface <to L3 switch 02>
+interface <to L3 switch 01>
+interface GigabitEthernet0/1/1
+interface Vlan2
+interface Vlan30
+interface Vlan1
+interface GigabitEthernet0/0/0.1
+interface GigabitEthernet0/0/0.30
+route-map eigrp permit 10
+interface Tunnel27
+interface Tunnel28
+Public IPs of tunnel interfaces on Hubs:
+crypto key generate rsa mod 2048 label DMVPN
+crypto pki authenticate ROOT
+yes
+interface GigabitEthernet0/0/0
+crypto pki authenticate DMVPN
+aaa new-model
+snmp-server community EUR#R1W0 RO
+ip tacacs source-interface loopback0
+crypto pki trustpoint DMVPN
+!!! # Object-Group definition
+!!! # SVI & VLAN & Subnet creation
+!!! # Sub-interface configuration – Make sure to use correct physical interface !!!
+class-map type inspect match-all Class_INSIDE-TO-YARD
+class-map match-any EF
+! *** Apply to DMPVN / Zscaler tunnels and LAN interface *** Interface (Slot / Port) may vary
+ip prefix-list PL_DMVPN_LOOPBACK seq 5 permit 10.173.128.0/20 le 32
+route-map RM_MPLS_PROTECTION deny 10
+router bgp XXXXX			!AS number
+route-map RM_NO_DIA_ROUTES deny 10
+! remove network statements
+Change all sources to LAN interface, due to the Loopback filtering.
+In case that there is already use proper hardware, migration from MPLS to DMVPN can be done on
+router bgp 65500
++-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+************************************** WARNING ********************************
+!! Configure LAN part as per Network Switch Technical Standard – use different vlan than 1
+!! 1K routers in case of transfer vlan
+!! 4K routers
+!!! //Add description of Zscaler tunnels:
+!!! //Enable DMVPN Tunnel IF
+interface Tunnel100
+interface Tunnel200
+Implementation of ZBFW can be done in two scenarios:
+controller Cellular 0/2/0
+interface Cellular0/2/0
+dialer watch-list 1 ip 9.9.9.9 255.255.255.255
+ip route vrf INET2 0.0.0.0 0.0.0.0 Cellular0/1/0
+!! In case of NAM DMVPN router, set description of 4G interface:
+interface Cellular0/2/0
+interface Cellular0/1/0
+Follow the instructions listed below for manual enrollment.
+Copy & Paste the CSR to the CA Server (https://grpsafran0006/certsrv/certrqxt.asp).
+crypto pki import DMVPN certificate
+Check tunnel interface status. If it is UP, proceed with configuration for automatic enrollment:
+! Delete the DMVPN trustpoint and certificates
+! Recreate it with correct settings
+! Re-Authenticate the Trustpoint, which also automatically enrolls
+! Save Configuration
+! Validate
+In addition the Hub routers require loopback addresses to the Backbone and for the MPLS path
+See kb #5415 for client addressing

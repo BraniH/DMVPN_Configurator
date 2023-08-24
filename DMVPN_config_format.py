@@ -1,5 +1,5 @@
 import os
-import time
+import re
 
 
 def get_txt_content(path, encoding='utf-8'):
@@ -46,8 +46,9 @@ class ConfigFormat:
     def advanced_cleanup_rules(self, config):
         clean_config = []
         headers = read_file_to_tuple(os.getcwd() + "\\Config\\headers.txt")
+        split_lines = read_file_to_tuple(os.getcwd() + "\\Config\\split_lines.txt")
         for line in config:
-            line = self.format_config_lines(line, headers)
+            line = self.format_config_lines(line, headers, split_lines)
             
             #at the end append only desiareble lines
             clean_config.append(line)
@@ -69,11 +70,16 @@ class ConfigFormat:
         return clean_config
 
     
-    
     @staticmethod
-    def format_config_lines(line, headers):
+    def format_config_lines(line, headers, split_lines):
         if line.strip() in headers:
             line = f"\n\n{line.strip()} !!!Header \n"
+        elif line.strip() in split_lines:
+            line = f"\n  {line.strip()}\n"
+        elif re.search("^hostname [a-zA-Z]{3}nr\d{4}.*(?:101|102)$", line):
+            line = f"\n  {line.strip()}\n"
+        elif re.search("ip route vrf (INET|INET2) 0\.0\.0\.0 0\.0\.0\.0", line):
+            line = f"\n  {line.strip()}\n"
         else:
             line = f"  {line}"
 
